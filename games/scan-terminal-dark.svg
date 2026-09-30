@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 260" width="440" height="260" role="img" aria-label="Terminal window showing an nmap scan">
+
+<style>
+  :root{
+    --panel:#161b22;--border:#30363d;--fg:#c9d1d9;--dim:#8b949e;
+    --green:#3fb950;--green-dim:#1a3f2b;--red:#f85149;--red-dim:#3d1a1a;
+    --yellow:#d29922;--blue:#58a6ff;--cyan:#39c5cf;--bg:#0d1117;
+  }
+  text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .panel{fill:var(--panel)}
+  .edge{stroke:var(--border);stroke-width:1}
+  .fg{fill:var(--fg)} .dim{fill:var(--dim)} .gr{fill:var(--green)}
+  .rd{fill:var(--red)} .yl{fill:var(--yellow)} .bl{fill:var(--blue)} .cy{fill:var(--cyan)}
+  .f10{font-size:10px} .f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+<rect x="0" y="0" width="440" height="260" rx="10" class="panel"/>
+<rect x="0.5" y="0.5" width="439" height="259" rx="10" fill="none" class="edge"/>
+<defs></defs>
+
+<rect x="0" y="0" width="440" height="22" rx="10" class="panel"/>
+<rect x="0" y="12" width="440" height="10" class="panel"/>
+<line x1="0" y1="22.5" x2="440" y2="22.5" class="edge"/>
+<circle cx="14" cy="11" r="3.5" class="rd"/><circle cx="26" cy="11" r="3.5" class="yl"/>
+<circle cx="38" cy="11" r="3.5" class="gr"/>
+<text x="220" y="15" text-anchor="middle" class="dim f11">bash - 80x24</text>
+<text x="14" y="38" class="f11 dim line" style="animation:lineIn 20s linear infinite both;animation-delay:0.00s"># authorised scope: 10.10.10.0/24 (lab.local)</text><text x="14" y="51" class="f11 fg line" style="animation:lineIn 20s linear infinite both;animation-delay:0.28s">$ nmap -sV -p- --min-rate 2000 10.10.10.0/24</text><text x="14" y="77" class="f11 dim line" style="animation:lineIn 20s linear infinite both;animation-delay:0.84s">Starting Nmap 7.94 ( https://nmap.org )</text><text x="14" y="90" class="f11 dim line" style="animation:lineIn 20s linear infinite both;animation-delay:1.12s">Nmap scan report for lab.local (10.10.10.7)</text><text x="14" y="103" class="f11 dim line" style="animation:lineIn 20s linear infinite both;animation-delay:1.40s">Host is up (0.021s latency).</text><text x="14" y="129" class="f11 dim line" style="animation:lineIn 20s linear infinite both;animation-delay:1.96s">PORT     STATE    SERVICE     VERSION</text><text x="14" y="142" class="f11 gr line" style="animation:lineIn 20s linear infinite both;animation-delay:2.24s">00022   open      ssh        OpenSSH 8.9p1</text><text x="14" y="155" class="f11 gr line" style="animation:lineIn 20s linear infinite both;animation-delay:2.52s">00080   open      http       Apache 2.4.54</text><text x="14" y="168" class="f11 gr line" style="animation:lineIn 20s linear infinite both;animation-delay:2.80s">00443   open      https      nginx 1.24.0</text><text x="14" y="181" class="f11 gr line" style="animation:lineIn 20s linear infinite both;animation-delay:3.08s">03306   open      mysql      MySQL 8.0.32</text><text x="14" y="194" class="f11 gr line" style="animation:lineIn 20s linear infinite both;animation-delay:3.36s">08080   open      http-proxy Jetty 9.4</text><text x="14" y="207" class="f11 dim line" style="animation:lineIn 20s linear infinite both;animation-delay:3.64s">00021   closed    tcp</text><text x="14" y="220" class="f11 dim line" style="animation:lineIn 20s linear infinite both;animation-delay:3.92s">00025   closed    tcp</text>
+<rect x="47.0" y="223" width="7" height="12" class="gr" style="animation:blink 1s steps(1) infinite"/>
+<style>
+  @keyframes lineIn{
+    0%,1%{opacity:0}
+    4%{opacity:1}
+    90%{opacity:1}
+    97%,100%{opacity:0}
+  }
+  @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+</style>
+</svg>

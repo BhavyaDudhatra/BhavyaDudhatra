@@ -38,6 +38,33 @@
 
 ---
 
+## 🕹️ Terminal
+
+<div align="center">
+
+<table>
+<tr>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="./games/scan-terminal-dark.svg"><img alt="Animated terminal window running an nmap port scan against an authorised lab target" src="./games/scan-terminal-light.svg"></picture></td>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="./games/vuln-grid-dark.svg"><img alt="Minesweeper-style grid revealing vulnerabilities during a scan" src="./games/vuln-grid-light.svg"></picture></td>
+</tr>
+<tr>
+<td align="center"><strong>vuln-grid</strong><br>Revealing findings across a target grid</td>
+<td align="center"><strong>nmap</strong><br>Authorised lab scan, port by port</td>
+</tr>
+<tr>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="./games/firewall-watch-dark.svg"><img alt="Network diagram where packets pass or are blocked by a web application firewall" src="./games/firewall-watch-light.svg"></picture></td>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="./games/matrix-rain-dark.svg"><img alt="Matrix style falling code rain" src="./games/matrix-rain-light.svg"></picture></td>
+</tr>
+<tr>
+<td align="center"><strong>packet-filter</strong><br>Watching traffic against the WAF</td>
+<td align="center"><strong>entropy</strong><br>Because it is 2am somewhere</td>
+</tr>
+</table>
+
+</div>
+
+---
+
 ## 🖥️ About
 
 ```bash

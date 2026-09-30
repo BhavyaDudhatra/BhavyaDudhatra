@@ -31,6 +31,11 @@ jobs:
             dist/github-snake-dark.svg?palette=github-dark
             dist/github-snake-light.svg?palette=github-light
 
+      - name: Verify generated game art
+        run: |
+          npm install --no-save jsdom
+          node tools/test-game-art.js
+
       - name: Commit generated SVGs
         run: |
           git config user.name  'github-actions[bot]'

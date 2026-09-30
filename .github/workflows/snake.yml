@@ -36,6 +36,19 @@ jobs:
           npm ci
           npm test
 
+      # The test suite runs the generator, so this catches the remaining drift
+      # it cannot see on its own: art committed without regenerating it, or an
+      # SVG edited by hand. The suite validates whatever is on disk, so a stale
+      # file would otherwise pass as long as it is internally consistent.
+      - name: Verify committed art matches generator output
+        run: |
+          npm run generate
+          if ! git diff --exit-code --quiet -- games; then
+            echo '::error::games/ does not match gen-game-art.js output. Run `npm run generate` and commit the result.'
+            git diff --stat -- games
+            exit 1
+          fi
+
       - name: Commit generated SVGs
         run: |
           git config user.name  'github-actions[bot]'

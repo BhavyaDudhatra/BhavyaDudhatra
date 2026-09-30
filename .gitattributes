@@ -1,0 +1,6 @@
+# Keep HTML/JS/YAML as LF so the deployed game and shell scripts are unaffected
+# by Windows line-ending conversion.
+*.html   text eol=lf
+*.js     text eol=lf
+*.yml    text eol=lf
+*.md     text eol=lf

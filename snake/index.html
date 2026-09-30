@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Snake · BhavyaDudhatra</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --green: #3fb950;
+    --green-dim: rgba(63, 185, 80, .16);
+    --red: #f85149;
+    --grid: rgba(255, 255, 255, .045);
+  }
+  html[data-theme="light"] {
+    --bg: #ffffff;
+    --panel: #f6f8fa;
+    --border: #d0d7de;
+    --fg: #1f2328;
+    --muted: #59636e;
+    --green: #1a7f37;
+    --green-dim: rgba(26, 127, 55, .12);
+    --red: #cf222e;
+    --grid: rgba(0, 0, 0, .05);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { width: 100%; max-width: 400px; }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+  h1 span { opacity: .55; font-weight: 400; font-size: 14px; }
+  #theme-toggle {
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    font-size: 15px;
+    color: var(--fg);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  #theme-toggle:hover { border-color: var(--muted); }
+
+  .hud {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .stat {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+  }
+  .stat-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .stat-value {
+    display: block;
+    margin-top: 2px;
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
+  }
+
+  .stage {
+    position: relative;
+    border-radius: 13px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    line-height: 0;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 16px;
+    text-align: center;
+    line-height: 1.45;
+    background: rgba(0, 0, 0, .55);
+    cursor: pointer;
+  }
+  .overlay[hidden] { display: none; }
+  .overlay-title { font-size: 24px; font-weight: 700; }
+  .overlay-sub { font-size: 13px; color: var(--fg); opacity: .85; }
+  kbd {
+    padding: 1px 6px;
+    border: 1px solid var(--muted);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .controls { display: flex; gap: 8px; margin-top: 12px; }
+  .btn {
+    flex: 1;
+    padding: 11px 6px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: transform .07s ease, border-color .15s ease;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--muted); }
+  .btn:active:not(:disabled) { transform: scale(.97); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.primary {
+    color: var(--green);
+    background: var(--green-dim);
+    border-color: var(--green);
+  }
+
+  .pad {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 7px;
+    margin-top: 10px;
+  }
+  .pad-btn {
+    padding: 15px 0;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--fg);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    cursor: pointer;
+  }
+  .pad-btn:active { transform: scale(.95); }
+  .pad-up    { grid-column: 2; grid-row: 1; }
+  .pad-left  { grid-column: 1; grid-row: 2; }
+  .pad-down  { grid-column: 2; grid-row: 2; }
+  .pad-right { grid-column: 3; grid-row: 2; }
+
+  .hint {
+    margin: 14px 0 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+    text-align: center;
+  }
+  .keys { display: flex; gap: 5px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+  .back {
+    display: block;
+    margin-top: 18px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--green); }
+
+  @media (hover: none), (max-width: 480px) {
+    .pad { display: grid; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>🐍 Snake <span>— playable on my profile</span></h1>
+    <button id="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+  </header>
+
+  <div class="hud">
+    <div class="stat"><span class="stat-label">Score</span><span class="stat-value" id="score">0</span></div>
+    <div class="stat"><span class="stat-label">Best</span><span class="stat-value" id="best">0</span></div>
+    <div class="stat"><span class="stat-label">Length</span><span class="stat-value" id="length">3</span></div>
+  </div>
+
+  <div class="stage">
+    <canvas id="board" width="336" height="336" aria-label="Snake game board"></canvas>
+    <div class="overlay" id="overlay">
+      <div class="overlay-title">Ready?</div>
+      <div class="overlay-sub">Press <kbd>Space</kbd> or tap to play</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn primary" id="btn-play" type="button" disabled>Play</button>
+    <button class="btn" id="btn-pause" type="button" disabled>Pause</button>
+    <button class="btn" id="btn-restart" type="button">Restart</button>
+  </div>
+
+  <div class="pad">
+    <button class="pad-btn pad-up" data-dir="up" type="button" aria-label="Up">▲</button>
+    <button class="pad-btn pad-left" data-dir="left" type="button" aria-label="Left">◀</button>
+    <button class="pad-btn pad-down" data-dir="down" type="button" aria-label="Down">▼</button>
+    <button class="pad-btn pad-right" data-dir="right" type="button" aria-label="Right">▶</button>
+  </div>
+
+  <p class="hint">
+    <strong>Move</strong> arrows or WASD · <strong>Pause</strong> Space · <strong>Restart</strong> R<br>
+    Swipe the board on touch devices. Walls and your own tail end the run.
+    <div class="keys"><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div>
+  </p>
+
+  <a class="back" href="https://github.com/BhavyaDudhatra">&larr; Back to my GitHub profile</a>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var COLS = 21, ROWS = 21, CELL = 16;
+  var STEP_START = 135, STEP_MIN = 68, STEP_DECAY = 3.5;
+  var STORE_KEY = 'bhavya.snake.best';
+  var THEME_KEY = 'bhavya.snake.theme';
+
+  var DIRS = {
+    up:    { x: 0,  y: -1 },
+    down:  { x: 0,  y: 1 },
+    left:  { x: -1, y: 0 },
+    right: { x: 1,  y: 0 }
+  };
+  var OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
+  var KEY_DIR = {
+    ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+    w: 'up', s: 'down', a: 'left', d: 'right',
+    W: 'up', S: 'down', A: 'left', D: 'right'
+  };
+
+  var canvas = document.getElementById('board');
+  var ctx = canvas.getContext('2d');
+  var overlay = document.getElementById('overlay');
+  var elScore = document.getElementById('score');
+  var elBest = document.getElementById('best');
+  var elLength = document.getElementById('length');
+  var btnPlay = document.getElementById('btn-play');
+  var btnPause = document.getElementById('btn-pause');
+  var btnRestart = document.getElementById('btn-restart');
+  var btnTheme = document.getElementById('theme-toggle');
+
+  var snake, dir, queued, food, score, best, length;
+  var state, stepMs, acc, last, raf, pulse;
+  var focusRing = false;
+
+  function store(key, value) {
+    try {
+      if (value === undefined) return window.localStorage.getItem(key);
+      window.localStorage.setItem(key, String(value));
+    } catch (e) { /* private mode / storage disabled */ }
+    return null;
+  }
+
+  function css(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function palette() {
+    return {
+      board: css('--bg'),
+      grid: css('--grid'),
+      head: css('--green'),
+      body: css('--green'),
+      food: css('--red'),
+      dead: css('--muted')
+    };
+  }
+  var PAL = palette();
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    btnTheme.textContent = theme === 'dark' ? '☀️' : '🌙';
+    store(THEME_KEY, theme);
+    PAL = palette();
+    draw();
+  }
+
+  (function initTheme() {
+    var saved = store(THEME_KEY);
+    if (saved !== 'dark' && saved !== 'light') {
+      saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', saved);
+    btnTheme.textContent = saved === 'dark' ? '☀️' : '🌙';
+  })();
+
+  function randomInt(max) { return Math.floor(Math.random() * max); }
+
+  function reset() {
+    snake  = [{ x: 8, y: 10 }, { x: 7, y: 10 }, { x: 6, y: 10 }];
+    dir    = 'right';
+    queued = [];
+    score  = 0;
+    length = 3;
+    stepMs = STEP_START;
+    acc    = 0;
+    pulse  = 0;
+    placeFood();
+    syncHud();
+    draw();
+  }
+
+  function occupied(x, y) {
+    for (var i = 0; i < snake.length; i++) {
+      if (snake[i].x === x && snake[i].y === y) return true;
+    }
+    return false;
+  }
+
+  function placeFood() {
+    var free = [];
+    for (var y = 0; y < ROWS; y++) {
+      for (var x = 0; x < COLS; x++) {
+        if (!occupied(x, y)) free.push({ x: x, y: y });
+      }
+    }
+    if (!free.length) { food = null; return; }
+    food = free[randomInt(free.length)];
+  }
+
+  function syncHud() {
+    elScore.textContent  = String(score);
+    elBest.textContent   = String(best);
+    elLength.textContent = String(length);
+  }
+
+  function step() {
+    if (queued.length) dir = queued.shift();
+
+    var v = DIRS[dir];
+    var head = { x: snake[0].x + v.x, y: snake[0].y + v.y };
+
+    var willGrow = food && head.x === food.x && head.y === food.y;
+    // The tail cell frees up on the same tick unless we grow into it.
+    var limit = snake.length - (willGrow ? 0 : 1);
+    var self = false;
+    for (var i = 0; i < limit; i++) {
+      if (snake[i].x === head.x && snake[i].y === head.y) { self = true; break; }
+    }
+
+    var wall = head.x < 0 || head.y < 0 || head.x >= COLS || head.y >= ROWS;
+    if (wall || self) { endRun(false); return; }
+
+    snake.unshift(head);
+    if (willGrow) {
+      score += 10;
+      length = snake.length;
+      stepMs = Math.max(STEP_MIN, stepMs - STEP_DECAY);
+      if (score > best) { best = score; store(STORE_KEY, best); }
+      pulse = 1;
+      placeFood();
+      if (!food) { syncHud(); endRun(true); return; }
+    } else {
+      snake.pop();
+    }
+    syncHud();
+  }
+
+  function showOverlay(title, sub) {
+    overlay.querySelector('.overlay-title').textContent = title;
+    overlay.querySelector('.overlay-sub').innerHTML = sub;
+    overlay.hidden = false;
+  }
+
+  function endRun(won) {
+    state = 'dead';
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    draw();
+    showOverlay(won ? 'Board cleared!' : 'Game over',
+                'Score ' + score + ' &middot; Best ' + best + ' &mdash; press <kbd>Space</kbd> to play again');
+    btnPlay.textContent = 'Play again';
+    btnPlay.disabled = false;
+    btnPause.disabled = true;
+  }
+
+  function start() {
+    if (state === 'over' || state === 'dead' || !snake) reset();
+    if (state === 'running') return;
+    state = 'running';
+    overlay.hidden = true;
+    btnPlay.textContent = 'Running';
+    btnPlay.disabled = true;
+    btnPause.disabled = false;
+    last = 0;
+    acc = 0;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function pause() {
+    if (state !== 'running') return;
+    state = 'paused';
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    showOverlay('Paused', 'Press <kbd>Space</kbd> or tap to resume');
+    btnPlay.textContent = 'Resume';
+    btnPlay.disabled = false;
+    btnPause.disabled = true;
+    draw();
+  }
+
+  function toggle() {
+    if (state === 'running') pause(); else start();
+  }
+
+  function restart() {
+    state = 'over';
+    reset();
+    start();
+  }
+
+  function tick(ts) {
+    raf = requestAnimationFrame(tick);
+    if (state !== 'running') return;
+    if (!last) { last = ts; return; }
+    var dt = ts - last;
+    last = ts;
+    if (dt > 250) dt = STEP_START;   // tab was backgrounded; don't fast-forward
+    acc += dt;
+    while (acc >= stepMs) {
+      acc -= stepMs;
+      step();
+      if (state !== 'running') return;
+    }
+    if (pulse > 0) pulse = Math.max(0, pulse - 0.05);
+    draw();
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function draw() {
+    var w = COLS * CELL, h = ROWS * CELL;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = PAL.board;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = PAL.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (var x = 1; x < COLS; x++) { ctx.moveTo(x * CELL + .5, 0); ctx.lineTo(x * CELL + .5, h); }
+    for (var y = 1; y < ROWS; y++) { ctx.moveTo(0, y * CELL + .5); ctx.lineTo(w, y * CELL + .5); }
+    ctx.stroke();
+
+    if (!snake) return;
+    var over = state === 'dead';
+    var body = over ? PAL.dead : PAL.body;
+    var headCol = over ? PAL.dead : PAL.head;
+
+    if (food) {
+      var cx = food.x * CELL + CELL / 2, cy = food.y * CELL + CELL / 2;
+      var grow = 1 + pulse * 0.35;
+      ctx.save();
+      ctx.shadowColor = PAL.food;
+      ctx.shadowBlur = 10 + pulse * 14;
+      ctx.fillStyle = PAL.food;
+      ctx.beginPath();
+      ctx.arc(cx, cy, (CELL * 0.32) * grow, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    for (var i = snake.length - 1; i >= 0; i--) {
+      var s = snake[i];
+      var inset = i === 0 ? 1 : 2.5;
+      var t = snake.length > 1 ? 1 - (i / snake.length) : 0;
+      ctx.fillStyle = i === 0 ? headCol : body;
+      ctx.globalAlpha = i === 0 ? 1 : 0.55 + 0.45 * t;
+      if (i === 0 && !over) { ctx.shadowColor = PAL.head; ctx.shadowBlur = 8; }
+      roundRect(s.x * CELL + inset, s.y * CELL + inset, CELL - inset * 2, CELL - inset * 2, 4);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+    }
+
+    if (snake.length) {
+      var v = DIRS[dir];
+      var hx = snake[0].x * CELL + CELL / 2, hy = snake[0].y * CELL + CELL / 2;
+      ctx.fillStyle = PAL.board;
+      ctx.beginPath();
+      ctx.arc(hx + v.x * 3.5, hy + v.y * 3.5, 1.7, 0, Math.PI * 2);
+      if (v.x === 0) ctx.arc(hx + 3.2, hy + v.y * 3.5, 1.7, 0, Math.PI * 2);
+      else ctx.arc(hx + v.x * 3.5, hy + 3.2, 1.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function steer(name) {
+    if (!DIRS[name]) return;
+    var lastDir = queued.length ? queued[queued.length - 1] : dir;
+    if (name === lastDir || name === OPPOSITE[lastDir]) return;
+    if (queued.length < 2) queued.push(name);
+    if (state === 'over' || state === 'dead' || !snake) start();
+  }
+
+  function onKey(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var d = KEY_DIR[e.key];
+    if (d) {
+      e.preventDefault();
+      focusRing = true;
+      steer(d);
+      return;
+    }
+    if (e.key === ' ' || e.code === 'Space') {
+      e.preventDefault();
+      focusRing = true;
+      toggle();
+      return;
+    }
+    if (e.key === 'r' || e.key === 'R') {
+      e.preventDefault();
+      focusRing = true;
+      restart();
+    }
+  }
+
+  function bind() {
+    document.addEventListener('keydown', onKey, false);
+
+    canvas.addEventListener('pointerdown', function () {
+      focusRing = true;
+      toggle();
+    }, false);
+    overlay.addEventListener('click', function () { focusRing = true; start(); }, false);
+    btnPlay.addEventListener('click', function () { focusRing = true; start(); }, false);
+    btnPause.addEventListener('click', function () { focusRing = true; pause(); }, false);
+    btnRestart.addEventListener('click', function () { focusRing = true; restart(); }, false);
+    btnTheme.addEventListener('click', function () {
+      var cur = document.documentElement.getAttribute('data-theme');
+      applyTheme(cur === 'dark' ? 'light' : 'dark');
+    }, false);
+
+    var pad = document.querySelectorAll('.pad-btn');
+    for (var i = 0; i < pad.length; i++) {
+      (function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          focusRing = true;
+          var d = btn.getAttribute('data-dir');
+          if (state !== 'running') start();
+          steer(d);
+        }, false);
+      })(pad[i]);
+    }
+
+    var touch = null;
+    canvas.addEventListener('touchstart', function (e) {
+      var t = e.changedTouches[0];
+      touch = { x: t.clientX, y: t.clientY };
+    }, { passive: true });
+    canvas.addEventListener('touchend', function (e) {
+      if (!touch) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+      touch = null;
+      focusRing = true;
+      if (Math.abs(dx) < 18 && Math.abs(dy) < 18) { toggle(); return; }
+      if (state !== 'running') start();
+      steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+    }, { passive: true });
+  }
+
+  // Crisp rendering on high-DPI screens.
+  var dpr = window.devicePixelRatio || 1;
+  if (dpr > 1) {
+    canvas.width = COLS * CELL * dpr;
+    canvas.height = ROWS * CELL * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  best = parseInt(store(STORE_KEY) || '0', 10) || 0;
+  state = 'over';
+  PAL = palette();
+  reset();
+  bind();
+  draw();
+
+  // Exposed for the automated test harness.
+  window.__snake = {
+    get state() { return state; },
+    get score() { return score; },
+    get best() { return best; },
+    get length() { return length; },
+    get head() { return snake && snake[0]; },
+    get food() { return food; },
+    start: start, pause: pause, restart: restart, steer: steer, tick: tick
+  };
+})();
+</script>
+</body>
+</html>

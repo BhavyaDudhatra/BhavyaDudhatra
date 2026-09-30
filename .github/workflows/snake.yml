@@ -22,8 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # v3 is required: the `outputs` input (multi-file, per-theme palettes)
-      # does not exist on v1.
+      # v3 is required for the `outputs` input (multi-file, per-theme palettes).
       - uses: Platane/snk@v3
         with:
           github_user_name: ${{ github.repository_owner }}

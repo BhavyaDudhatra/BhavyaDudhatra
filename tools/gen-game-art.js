@@ -94,55 +94,153 @@ function esc(s) {
 /* ---------- 0. name banner ---------- */
 /*
  * A wordmark rather than ASCII art: SVG text scales cleanly on any viewport,
- * can be tinted per theme, and can carry a slow gradient sweep. The ASCII block
- * it replaced was fixed-width and broke on narrow screens.
+ * can be tinted per theme, and can be glitched with CSS. The ASCII block it
+ * replaced was fixed-width and broke on narrow screens.
+ *
+ * The glitch is built the way real datamosh does it, from three layers:
+ *   1. a base gradient fill that never moves,
+ *   2. red/cyan copies offset by a pixel or two (chromatic aberration),
+ *   3. horizontal slices clipped to thin bands and shifted sideways.
+ * Layer 3 is what sells it; the colour split alone just looks blurry.
  */
 
 function wordmark(p) {
+  const r = rng(0x5eed00);
   const BW = 760;
-  const BH = 150;
+  const BH = 170;
   const name = 'BHAVYA';
-  const size = 66;
-  const cy = 82;
+  const size = 62;
+  const baseline = 96;
+  const cx = BW / 2;
 
-  const gradId = 'wmGrad';
-  const sweep = `
-<linearGradient id="${gradId}" x1="0" y1="0" x2="1" y2="0">
+  // The name spelled out in 8-bit ASCII, so the binary row is a real encoding
+  // of the wordmark rather than decorative noise.
+  const bits = [...name]
+    .map((ch) => ch.charCodeAt(0).toString(2).padStart(8, '0'))
+    .join(' ');
+
+  // Scrolling binary marquee above the name.
+  let strip = '';
+  const stripCols = 118;
+  for (let i = 0; i < stripCols; i++) strip += r() < 0.5 ? '0' : '1';
+  const stripW = stripCols * charW(11);
+
+  // Faint falling 0/1 columns behind everything. Column width is 2 glyphs, so
+  // the pitch has to clear that or the last column runs off the right edge.
+  let rain = '';
+  const rainPitch = 31;
+  const rainCols = 24;
+  for (let c = 0; c < rainCols; c++) {
+    const x = 8 + c * rainPitch;
+    let col = '';
+    const rows = 2;
+    for (let i = 0; i < rows; i++) col += (r() < 0.5 ? '0' : '1') + ' ';
+    const dur = (3.5 + r() * 4).toFixed(2);
+    const del = (-r() * 6).toFixed(2);
+    rain += `<text x="${x}" y="${baseline - 46}" class="f11 rain" style="animation:fall ${dur}s linear infinite;animation-delay:${del}s">${col}</text>`;
+  }
+
+  // Slice bands for the displacement glitch: thin horizontal cuts through the
+  // glyphs that jump sideways for a frame. `at` is when the tear fires within
+  // the 5s cycle, and they are deliberately uneven — synchronised slices look
+  // mechanical rather than like a real signal break.
+  const bands = [
+    { y: baseline - 46, h: 9, at: 0.8 },
+    { y: baseline - 30, h: 7, at: 3.4 },
+    { y: baseline - 18, h: 11, at: 2.8 },
+    { y: baseline - 6, h: 8, at: 4.6 },
+  ];
+  const slices = bands
+    .map(
+      (b, i) =>
+        `<clipPath id="wmS${i}"><rect x="0" y="${b.y}" width="${BW}" height="${b.h}"/></clipPath>`
+    )
+    .join('\n');
+  const sliceDelays = bands.map((b, i) => `.r${i}{animation-delay:${b.at}s}`).join('');
+
+  const defs = `
+<linearGradient id="wmGrad" x1="0" y1="0" x2="1" y2="0">
   <stop offset="0%" stop-color="${p.blue}"/>
   <stop offset="45%" stop-color="${p.cyan}"/>
   <stop offset="100%" stop-color="${p.blue}"/>
 </linearGradient>
 <linearGradient id="wmSweep" x1="0" y1="0" x2="1" y2="0">
   <stop offset="0%" stop-color="${p.bg}" stop-opacity="0"/>
-  <stop offset="50%" stop-color="${p.fg}" stop-opacity="0.85"/>
+  <stop offset="50%" stop-color="${p.fg}" stop-opacity="0.7"/>
   <stop offset="100%" stop-color="${p.bg}" stop-opacity="0"/>
 </linearGradient>
-<clipPath id="wmClip"><text x="${BW / 2}" y="${cy}" text-anchor="middle" font-size="${size}" letter-spacing="10" font-weight="700">${name}</text></clipPath>`;
+<clipPath id="wmClip"><text x="${cx}" y="${baseline}" text-anchor="middle" font-size="${size}" letter-spacing="12" font-weight="700">${name}</text></clipPath>
+<clipPath id="wmStripClip"><rect x="0" y="8" width="${BW}" height="20"/></clipPath>
+${slices}`;
+
+  const nameText = (cls, extra = '') =>
+    `<text x="${cx}" y="${baseline}" text-anchor="middle" font-size="${size}" font-weight="700" letter-spacing="12"${extra ? ' ' + extra : ''}${cls ? ` class="${cls}"` : ''}>${name}</text>`;
+
+  const sliceGroups = bands
+    .map(
+      (b, i) =>
+        `<g clip-path="url(#wmS${i})">` + nameText(`sl r${i}`) + `</g>`
+    )
+    .join('\n');
 
   const body = `
-<g>
-  <text x="${BW / 2}" y="${cy}" text-anchor="middle" font-size="${size}" font-weight="700" letter-spacing="10" style="fill:url(#${gradId})">${name}</text>
-  <g clip-path="url(#wmClip)">
-    <rect x="0" y="0" width="160" height="${BH}" style="fill:url(#wmSweep)" class="sweep"/>
+<g style="opacity:.16">${rain}</g>
+<g clip-path="url(#wmStripClip)">
+  <g class="strip" style="animation:marquee 16s linear infinite">
+    <text x="${cx - stripW}" y="22" text-anchor="middle" class="f11" xml:space="preserve">${strip}</text>
+    <text x="${cx}" y="22" text-anchor="middle" class="f11" xml:space="preserve">${strip}</text>
+    <text x="${cx + stripW}" y="22" text-anchor="middle" class="f11" xml:space="preserve">${strip}</text>
   </g>
-  <text x="${BW / 2}" y="${cy}" text-anchor="middle" font-size="${size}" font-weight="700" letter-spacing="10" class="glitch">${name}</text>
 </g>
-<line x1="${BW / 2 - 150}" y1="${cy + 22}" x2="${BW / 2 + 150}" y2="${cy + 22}" class="edge"/>
-<text x="${BW / 2}" y="${cy + 44}" text-anchor="middle" class="dim f12" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
+<g class="word">
+  ${nameText('', `style="fill:url(#wmGrad)"`)}
+  <g clip-path="url(#wmClip)">
+    <rect x="0" y="0" width="150" height="${BH}" style="fill:url(#wmSweep)" class="sweep"/>
+  </g>
+  ${nameText('ab red')}
+  ${nameText('ab cyan')}
+  ${sliceGroups}
+</g>
+<text x="${cx}" y="128" text-anchor="middle" class="f11 bits" xml:space="preserve">${bits}</text>
+<line x1="${cx - 170}" y1="140" x2="${cx + 170}" y2="140" class="edge"/>
+<text x="${cx}" y="159" text-anchor="middle" class="dim f11" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
 <style>
-  .sweep{animation:sweep 6s ease-in-out infinite}
-  .glitch{fill:var(--cyan);opacity:0;mix-blend-mode:screen;animation:glitch 7s steps(1) infinite}
-  @keyframes sweep{0%{transform:translateX(0)}50%{transform:translateX(${BW + 160}px)}100%{transform:translateX(0)}}
-  @keyframes glitch{
-    0%,86%{opacity:0;transform:translate(0,0)}
-    87%{opacity:.5;transform:translate(-2px,1px)}
-    88%{opacity:0}
-    89%{opacity:.45;transform:translate(2px,-1px)}
-    90%,100%{opacity:0;transform:translate(0,0)}
+  .strip{fill:var(--dim)}
+  .rain{fill:var(--cyan)}
+  .sweep{animation:sweep 7s ease-in-out infinite}
+  .ab{opacity:0;mix-blend-mode:screen;animation:aberration 5s steps(1) infinite}
+  .red{fill:var(--red)}
+  .cyan{fill:var(--cyan)}
+  .sl{fill:var(--fg);opacity:0;mix-blend-mode:screen;animation:slice 5s steps(1) infinite}
+  ${sliceDelays}
+  .bits{fill:var(--cyan);opacity:.75;animation:bits 5s steps(1) infinite}
+  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(${stripW}px)}}
+  @keyframes fall{from{transform:translateY(0)}to{transform:translateY(150px)}}
+  @keyframes sweep{0%{transform:translateX(-150px)}50%{transform:translateX(${BW}px)}100%{transform:translateX(-150px)}}
+  /* Chromatic split: a frame of red/cyan fringing, then clean. */
+  @keyframes aberration{
+    0%,80%{opacity:0;transform:translate(0,0)}
+    81%{opacity:.55;transform:translate(-3px,1px)}
+    83%{opacity:.4;transform:translate(3px,-1px)}
+    85%,100%{opacity:0;transform:translate(0,0)}
+  }
+  /* Slices: each band flickers at its own offset so the tear never looks
+     synchronised, which is what makes cheap glitch loops read as fake. */
+  @keyframes slice{
+    0%,4%{opacity:0;transform:translateX(0)}
+    5%{opacity:.9;transform:translateX(16px)}
+    7%{opacity:.7;transform:translateX(-9px)}
+    9%,100%{opacity:0;transform:translateX(0)}
+  }
+  @keyframes bits{
+    0%,79%{opacity:.75}
+    80%{opacity:.2}
+    82%{opacity:.9}
+    85%,100%{opacity:.75}
   }
 </style>`;
 
-  return svgDoc(p, 'BHAVYA — ethical hacker and security researcher', body, sweep, BW, BH);
+  return svgDoc(p, 'BHAVYA — ethical hacker and security researcher, glitched with binary', body, defs, BW, BH);
 }
 
 /* ---------- 1. matrix rain ---------- */

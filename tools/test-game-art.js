@@ -146,10 +146,18 @@ for (const { file, doc } of parsed) {
   const [, , vbW, vbH] = (svg.getAttribute('viewBox') || '0 0 0 0').split(/\s+/).map(Number);
   let escapes = 0;
   const offenders = [];
+  // A clipped group is bounded by its clip, so its children may legitimately
+  // extend past the card (a scrolling marquee has to). Content inside an
+  // unclipped group does not get that exemption.
+  const clipped = new Set();
+  doc.window.document.querySelectorAll('[clip-path]').forEach((g) => {
+    [...g.querySelectorAll('*')].forEach((c) => clipped.add(c));
+  });
   doc.window.document.querySelectorAll('rect, circle, text, line').forEach((el) => {
     // Full-bleed backgrounds are intentional and fill the card exactly, so
     // they are excluded; this check targets stray content drawn off-card.
     if (el.tagName === 'rect' && num0(el.getAttribute('width')) === vbW) return;
+    if (clipped.has(el)) return;
     const num = (a) => parseFloat(el.getAttribute(a) || '0');
     let x;
     let y;
@@ -164,8 +172,6 @@ for (const { file, doc } of parsed) {
       // even though textContent concatenates every row.
       const spans = [...el.querySelectorAll('tspan')];
       if (spans.length > 1) {
-        // A stack of <tspan>s repeats the same x and advances by dy, so the
-        // real width is one glyph, not the concatenation of every row.
         x = num0(spans[0].getAttribute('x') ?? el.getAttribute('x'));
         w = Math.max(...spans.map((s) => s.textContent.length)) * size * 0.6;
         const dy = num0(spans[0].getAttribute('dy')) || size * 1.2;
@@ -188,7 +194,7 @@ for (const { file, doc } of parsed) {
       offenders.push(`<${el.tagName}> ${(el.textContent || '').slice(0, 18)} right=${(x + w).toFixed(0)} bottom=${(y + h).toFixed(0)}`);
     }
   });
-  ok(`${name} no content drawn outside the viewBox`, escapes === 0,
+  ok(`${name} no unclipped content outside the viewBox`, escapes === 0,
     `offenders=${escapes} ${offenders.slice(0, 3).join(' | ')}`);
 }
 
@@ -237,22 +243,75 @@ console.log('\n== wordmark ==');
   const src = fs.readFileSync(path.join(DIR, `${BANNER}-dark.svg`), 'utf8');
   ok('renders the name', />BHAVYA</.test(src));
   ok('names the role', /ETHICAL HACKER/i.test(src));
-  // Letter-spacing on centred text is easy to overdo and pushes the glyphs
-  // past the viewBox edges.
+
   const d = new JSDOM(src, { contentType: 'image/svg+xml' });
   const vbW = num0(d.window.document.documentElement.getAttribute('viewBox').split(/\s+/)[2]);
-  const size = 66;
-  const spacing = 10;
-  const width = 'BHAVYA'.length * (size * 0.6) + (('BHAVYA'.length - 1) * spacing);
+  const size = 62;
+  const spacing = 12;
+  const width = 'BHAVYA'.length * (size * 0.6) + ('BHAVYA'.length - 1) * spacing;
   ok('wordmark fits its viewBox width', width < vbW, `text=${width.toFixed(0)} viewBox=${vbW}`);
   ok('wordmark is centred', /text-anchor="middle"/.test(src));
   ok('has a gradient sweep', /linearGradient/.test(src) && /animation:sweep/.test(src));
+
   // Gradient/clip ids are referenced by url(#id); a typo renders as no fill.
   const ids = new Set([...src.matchAll(/<(?:linearGradient|clipPath)\s+id="([^"]+)"/g)].map((m) => m[1]));
   const refs = [...src.matchAll(/url\(#([^)]+)\)/g)].map((m) => m[1]);
   const dangling = refs.filter((r) => !ids.has(r));
   ok('no dangling url(#id) references', dangling.length === 0, dangling.join(','));
   ok('ids are unique', ids.size === [...src.matchAll(/id="/g)].length);
+
+  // --- glitch construction ---
+  // A glitch needs at least three layers: base, chromatic split, slice tear.
+  ok('has a base gradient fill', /fill:url\(#wmGrad\)/.test(src));
+  ok('has red and cyan aberration layers', /\.red\{fill:var\(--red\)\}/.test(src) && /\.cyan\{fill:var\(--cyan\)\}/.test(src));
+  ok('aberration is animated', /@keyframes aberration/.test(src));
+  // Slice displacement is what makes the glitch read as datamosh rather than
+  // a blurry double-image, so there must be several independently-timed bands.
+  const sliceBands = (src.match(/<clipPath id="wmS\d+"><rect/g) || []).length;
+  ok('has 4+ slice bands', sliceBands >= 4, `bands=${sliceBands}`);
+  ok('slices are animated', /@keyframes slice/.test(src));
+  const delays = [...src.matchAll(/\.r(\d)\{animation-delay:([\d.]+)s\}/g)].map((m) => Number(m[2]));
+  ok('slices are desynchronised', new Set(delays).size === delays.length && delays.length > 1,
+    delays.join(','));
+  // Every delay must land inside the animation cycle, or a slice fires only on
+  // the first iteration and the banner looks static afterwards.
+  const cycle = num0((src.match(/@keyframes slice|animation:slice ([\d.]+)s/) || [])[1]);
+  ok('slice delays fall inside the cycle', cycle > 0 && delays.every((d) => d >= 0 && d < cycle),
+    `cycle=${cycle} delays=${delays.join(',')}`);
+  // Band positions must be ordered and non-overlapping or the tears stack.
+  const ys = [...src.matchAll(/<clipPath id="wmS\d+"><rect x="0" y="([\d.]+)"[^>]*height="([\d.]+)"/g)]
+    .map((m) => ({ y: num0(m[1]), h: num0(m[2]) }))
+    .sort((a, b) => a.y - b.y);
+  let overlap = 0;
+  for (let i = 1; i < ys.length; i++) if (ys[i].y < ys[i - 1].y + ys[i - 1].h) overlap++;
+  ok('slice bands do not overlap', overlap === 0, ys.map((b) => `${b.y}+${b.h}`).join(' '));
+  // The marquee needs copies spanning a full translation width, or the strip
+  // visibly runs out mid-scroll.
+  const stripCopies = (src.match(/class="f11" xml:space="preserve"/g) || []).length;
+  ok('binary marquee tiles for a seamless loop', stripCopies >= 3, `copies=${stripCopies}`);
+  ok('marquee is animated', /@keyframes marquee/.test(src));
+  ok('marquee is clipped to the banner', /wmStripClip/.test(src));
+  // The travel distance must equal the tile pitch or the loop jumps.
+  const travel = src.match(/@keyframes marquee\{0%\{transform:translateX\(0\)\}100%\{transform:translateX\((-?\d+(?:\.\d+)?)px\)\}\}/);
+  ok('marquee travel is set', !!travel && Number(travel[1]) !== 0, travel ? travel[1] : 'no keyframe');
+  // Three copies must sit at a constant pitch, and the animation must travel
+  // exactly one pitch, otherwise the strip jumps when the loop restarts.
+  const xs = [...src.matchAll(/<text x="(-?[\d.]+)" y="22"[^>]*class="f11"/g)].map((m) => num0(m[1]));
+  const pitch = xs.length >= 2 ? xs[1] - xs[0] : 0;
+  ok('marquee copies are evenly pitched', xs.length >= 3 && pitch > 0
+    && xs.every((x, i) => Math.abs(x - (xs[0] + i * pitch)) < 0.5), xs.join(','));
+  ok('marquee travel equals one pitch', !!travel && Math.abs(Math.abs(Number(travel[1])) - pitch) < 0.5,
+    `travel=${travel ? travel[1] : '?'} pitch=${pitch.toFixed(1)}`);
+
+  // The binary row must be a real encoding of the name, not random digits.
+  const expected = [...'BHAVYA'].map((c) => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+  ok('binary row encodes the name in 8-bit ASCII', src.includes(expected),
+    `looking for "${expected}"`);
+  ok('has falling binary columns', (src.match(/class="f11 rain"/g) || []).length >= 20);
+
+  // The reduced-motion override has to reach the new classes too.
+  const rm = src.match(/@media\s*\(prefers-reduced-motion:reduce\)\{([^}]*)\}/);
+  ok('reduced-motion rule is a blanket override', !!rm && /\*\{/.test(rm[1]), rm ? rm[1] : 'absent');
 }
 
 console.log('\n== forensics dump ==');

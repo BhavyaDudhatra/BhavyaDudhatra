@@ -8,7 +8,7 @@ generator, not the SVGs.
 
 | File | Caption | What it shows |
 |:--|:--|:--|
-| `wordmark` | banner | The name, with a gradient sweep and periodic glitch |
+| `wordmark` | banner | The name, glitching over binary rain and its own 8-bit encoding |
 | `web-assess` | web-assess | Probing a parameter and grading a confirmed SQLi |
 | `scan-terminal` | nmap | An authorised port scan typing itself out |
 | `forensics-dump` | forensics | A memory hex dump with an artifact carved and hashed |
@@ -52,6 +52,11 @@ source but obvious once rendered:
   separately for aspect ratio.
 - **Dangling `url(#id)`.** A typo in a gradient or clipPath reference renders as
   no fill at all, which looks like a missing colour rather than a broken id.
+- **Animation that only works on the first loop.** Glitch layers carry delays;
+  a delay outside the keyframe cycle means the tear never fires again. Slice
+  delays, band overlap, and marquee pitch-vs-travel are all checked.
+- **Broken binary.** The row under the name is a real 8-bit encoding of
+  `BHAVYA`, and the test decodes it back to confirm it still matches.
 - **Broken animation wiring.** Every `animation:` name needs a matching
   `@keyframes`, and each scene must respect `prefers-reduced-motion`.
 - **Content honesty.** Each scene asserts the specifics that make it read as

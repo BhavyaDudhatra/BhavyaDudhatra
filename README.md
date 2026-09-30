@@ -12,13 +12,19 @@
 
 ---
 
-## 🐍 Play Snake
+## 🐍 Snake
 
-A playable Snake game I built from scratch — no frameworks, no dependencies, a single HTML file.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./dist/github-snake-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./dist/github-snake-light.svg">
+  <img alt="Snake eating my GitHub contribution graph" src="./dist/github-snake-light.svg">
+</picture>
 
-### [▶️ Launch the game](https://bhavyadudhatra.github.io/BhavyaDudhatra/snake/)
+The snake above chases the dots on my contribution grid, and regenerates with every push.
 
-**[bhavyadudhatra.github.io/BhavyaDudhatra/snake](https://bhavyadudhatra.github.io/BhavyaDudhatra/snake/)**
+Want to actually **play** Snake? I built a full playable version — arrows/WASD, swipe support, and a saved high score:
+
+**[▶️ bhavyadudhatra.github.io/BhavyaDudhatra/snake](https://bhavyadudhatra.github.io/BhavyaDudhatra/snake/)**
 
 <details>
 <summary>How to play</summary>

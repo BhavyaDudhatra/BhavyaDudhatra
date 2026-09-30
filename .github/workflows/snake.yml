@@ -1,0 +1,43 @@
+name: Generate snake animation
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 22:17 UTC daily. GitHub disables scheduled workflows on public repos after
+    # 60 days of no activity, so pushes refresh the image too.
+    - cron: '17 22 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snake
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      # v3 is required: the `outputs` input (multi-file, per-theme palettes)
+      # does not exist on v1.
+      - uses: Platane/snk@v3
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          outputs: |
+            dist/github-snake-dark.svg?palette=github-dark
+            dist/github-snake-light.svg?palette=github-light
+
+      - name: Commit generated SVGs
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dist
+          if git diff --quiet --cached; then
+            echo 'Snake SVG unchanged, nothing to commit.'
+            exit 0
+          fi
+          git commit -m 'Update snake animation'
+          git push

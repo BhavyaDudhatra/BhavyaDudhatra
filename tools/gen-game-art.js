@@ -68,6 +68,7 @@ function styleBlock(p) {
   .fg{fill:var(--fg)} .dim{fill:var(--dim)} .gr{fill:var(--green)}
   .rd{fill:var(--red)} .yl{fill:var(--yellow)} .bl{fill:var(--blue)} .cy{fill:var(--cyan)}
   .f10{font-size:10px} .f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
+  .f24{font-size:24px}
   @media (prefers-reduced-motion:reduce){*{animation:none !important}}
 </style>`;
 }
@@ -128,18 +129,20 @@ function wordmark(p) {
     if (!BIN_FONT[ch]) throw new Error(`BIN_FONT has no glyph for "${ch}"`);
   });
 
-  // Digit pitch is set with letter-spacing, not by assuming a cell width: the
-  // real advance for this font is ~0.6em, so a nominal cell size silently
-  // throws the whole grid off-centre.
-  const fontSize = 11;
-  const advance = charW(fontSize);
-  const pitch = 20; // horizontal distance between digit centres
-  const letterSpacing = pitch - advance;
-  const lh = 20; // row pitch, matched to `pitch` so cells read as square
+  // A dot matrix only reads as letters while the cells are close enough to join
+  // up. `pitch` is the cell size and `gap` the visible space between digits; the
+  // font size is derived from the pair, so the glyph size and the pitch can
+  // never drift apart and leave the grid sparse or overlapping.
+  const pitch = 19;
+  const gap = 4.6;
+  const advance = pitch - gap;
+  const fontSize = Math.round(advance / 0.6); // charW() is ~0.6em
+  const letterSpacing = pitch - charW(fontSize);
+  const lh = pitch; // square cells
   const cols = name.length * GLYPH_W + (name.length - 1); // +1 gap between glyphs
   const gridW = cols * advance + (cols - 1) * letterSpacing;
   const x0 = Math.round((BW - gridW) / 2);
-  const top = 50; // first row baseline
+  const top = 56; // first row baseline
   const gridBottom = top + (GLYPH_H - 1) * lh;
   const cx = BW / 2;
 
@@ -218,7 +221,7 @@ function wordmark(p) {
   // One pass only: a second .replace() would rescan the markup it just inserted
   // and match the "1" inside class="bin1", producing unclosed tags.
   const matrixRow = (txt, i) =>
-    `<text x="${x0}" y="${top + i * lh}" class="f11" letter-spacing="${letterSpacing.toFixed(2)}" xml:space="preserve">${txt.replace(
+    `<text x="${x0}" y="${top + i * lh}" class="f${fontSize}" letter-spacing="${letterSpacing.toFixed(2)}" xml:space="preserve">${txt.replace(
       /[01]/g,
       (d) => `<tspan class="bin${d}">${d}</tspan>`
     )}</text>`;

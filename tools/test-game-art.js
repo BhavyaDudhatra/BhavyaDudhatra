@@ -363,13 +363,20 @@ console.log('\n== wordmark ==');
     ok(`${theme}: glitch layers reuse the matrix via <use>`, uses >= 6, `uses=${uses}`);
 
     // Geometry: the grid must be horizontally centred, and letter-spacing (not
-    // an assumed cell width) is what sets the digit pitch.
+    // an assumed cell width) is what sets the digit pitch. The advance is read
+    // back off the element so the check cannot drift from the real font size.
     const spacing = num0(rows[0].getAttribute('letter-spacing'));
-    const advance = 11 * 0.6;
+    const cellSize = num0((rows[0].getAttribute('class') || '').match(/f(\d+)/)?.[1]);
+    const advance = cellSize * 0.6;
     const gridW = rows[0].textContent.length * advance
       + (rows[0].textContent.length - 1) * spacing;
     const x0 = num0(rows[0].getAttribute('x'));
+    ok(`${theme}: font size class is present`, cellSize > 0, `class="${rows[0].getAttribute('class')}"`);
     ok(`${theme}: letter-spacing sets the pitch`, spacing > 0, `ls=${spacing}`);
+    // A wide gap between digits is what made the letters read as scattered
+    // dots, so the gap has to stay small relative to the glyph.
+    ok(`${theme}: cells are dense enough to read as letters`,
+      spacing < advance * 0.5, `gap=${spacing} advance=${advance.toFixed(1)}`);
     ok(`${theme}: grid is horizontally centred`, Math.abs(x0 - (vbW - gridW) / 2) < 2,
       `x0=${x0} expected=${((vbW - gridW) / 2).toFixed(1)} width=${gridW.toFixed(0)}`);
     ok(`${theme}: grid fits inside the banner`, x0 >= 0 && x0 + gridW <= vbW,

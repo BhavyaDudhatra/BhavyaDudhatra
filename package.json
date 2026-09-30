@@ -1,0 +1,13 @@
+{
+  "name": "github-profile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Profile README and generated security scene artwork for github.com/BhavyaDudhatra",
+  "scripts": {
+    "generate": "node tools/gen-game-art.js",
+    "test": "node tools/test-game-art.js"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0"
+  }
+}

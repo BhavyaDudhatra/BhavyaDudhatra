@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { JSDOM } = require(process.env.JSDOM_PATH || 'jsdom');
+const { JSDOM } = require('jsdom');
 
 const DIR = path.join(__dirname, '..', 'games');
 const SCENES = [
@@ -16,6 +16,15 @@ const SCENES = [
   ['scan-terminal', 'lineIn'],
   ['firewall-watch', 'passMove'],
 ];
+
+// Display name shown under each card in the README, keyed by SVG filename.
+// Keeping this explicit means a caption can never silently drift from its image.
+const DISPLAY_NAME = {
+  'scan-terminal': 'nmap',
+  'vuln-grid': 'vuln-grid',
+  'firewall-watch': 'packet-filter',
+  'matrix-rain': 'entropy',
+};
 
 let failures = 0;
 const ok = (name, cond, extra = '') => {
@@ -156,6 +165,48 @@ console.log('\n== matrix rain density ==');
   const cols = (src.match(/animation:fall /g) || []).length;
   ok('has a dense field of columns', cols >= 25, `cols=${cols}`);
   ok('escapes & < > in glyphs', /&amp;|&lt;|&gt;/.test(src));
+}
+
+console.log('\n== README wiring ==');
+{
+  const md = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+
+  // GitHub strips these from README HTML, so a profile-page game is impossible.
+  for (const tag of ['script', 'style', 'iframe', 'canvas', 'button', 'input']) {
+    ok(`README has no <${tag}>`, !new RegExp(`<${tag}[\\s>/]`, 'i').test(md));
+  }
+
+  // Every referenced local asset must be committed.
+  const refs = [...new Set([...md.matchAll(/\.\/(games|dist)\/[a-z0-9-]+\.svg/g)].map((m) => m[0]))];
+  ok('README references local SVGs', refs.length > 0);
+  for (const r of refs) {
+    ok(`${r} is committed`, fs.existsSync(path.join(__dirname, '..', r.replace('./', ''))));
+  }
+
+  // Each <picture> needs a dark source plus a light <img> fallback, otherwise
+  // one colour scheme shows a blank or mismatched card.
+  const pictures = [...md.matchAll(/<picture>([\s\S]*?)<\/picture>/g)].map((m) => m[1]);
+  ok('every <picture> has a dark source', pictures.every((p) => /prefers-color-scheme:\s*dark/.test(p)));
+  ok('every <picture> has an <img> fallback', pictures.every((p) => /<img\b/.test(p)));
+  ok('every <img> has descriptive alt text', [...md.matchAll(/<img\b[^>]*>/g)]
+    .every((m) => /alt="[^"]{12,}"/.test(m[0])));
+
+  // Captions must sit under the image they describe. Extract each image's scene
+  // name and compare with the caption in the following caption row cell.
+  const cells = [...md.matchAll(/srcset="\.\/games\/([a-z0-9-]+?)-(?:dark|light)\.svg"/g)];
+  const caps = [...md.matchAll(/<td align="center"><strong>([a-z0-9-]+)<\/strong>/g)].map((m) => m[1]);
+  ok('scene count matches caption count', cells.length === caps.length,
+    `images=${cells.length} captions=${caps.length}`);
+  cells.forEach((c, i) => {
+    const scene = c[1];
+    const expected = DISPLAY_NAME[scene];
+    ok(`caption "${caps[i]}" matches image "${scene}"`, !!expected && caps[i] === expected,
+      `cell ${i} shows ${scene} (expect ${expected}) but is labelled ${caps[i]}`);
+  });
+
+  // The caption table and this map must not fall out of sync.
+  const declared = new Set(Object.values(DISPLAY_NAME));
+  caps.forEach((c) => ok(`caption "${c}" is a known scene`, declared.has(c)));
 }
 
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : failures + ' CHECK(S) FAILED'}\n`);

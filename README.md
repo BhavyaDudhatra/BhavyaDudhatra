@@ -48,8 +48,8 @@
 <td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="./games/vuln-grid-dark.svg"><img alt="Minesweeper-style grid revealing vulnerabilities during a scan" src="./games/vuln-grid-light.svg"></picture></td>
 </tr>
 <tr>
-<td align="center"><strong>vuln-grid</strong><br>Revealing findings across a target grid</td>
 <td align="center"><strong>nmap</strong><br>Authorised lab scan, port by port</td>
+<td align="center"><strong>vuln-grid</strong><br>Revealing findings across a target grid</td>
 </tr>
 <tr>
 <td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="./games/firewall-watch-dark.svg"><img alt="Network diagram where packets pass or are blocked by a web application firewall" src="./games/firewall-watch-light.svg"></picture></td>

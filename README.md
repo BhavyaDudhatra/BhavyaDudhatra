@@ -1,47 +1,69 @@
 <div align="center">
 
-# Hi, I'm Bhavya Dudhatra 👋
+```
+ ██████╗ ██╗  ██╗ █████╗ ██╗   ██╗██╗   ██╗ █████╗ 
+ ██╔══██╗██║  ██║██╔══██╗╚██╗ ██╔╝██║   ██║██╔══██╗
+ ██████╔╝███████║███████║ ╚████╔╝ ██║   ██║███████║
+ ██╔══██╗╚════██║██╔══██║  ╚██╔╝  ██║   ██║██╔══██║
+ ██████╔╝     ██║██║  ██║   ██║   ╚██████╔╝██║  ██║
+ ╚═════╝      ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+```
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&center=true&width=600&height=60&lines=Java+Developer+in+Progress+%E2%9A%A1+DSA+%F0%9F%8C%8F+Flutter+%26+Dart+%F0%9F%9A%80+Always+Building+%F0%9F%8F%AE%EF%B8%8F&pause=1200&color=58A6FF&vCenter=true&repeat=true)](https://readme-typing-svg.demolab.com?font=Fira+Code&center=true&width=600&height=60&lines=Java+Developer+in+Progress+%E2%9A%A1+DSA+%F0%9F%8C%8F+Flutter+%26+Dart+%F0%9F%9A%80+Always+Building+%F0%9F%8F%AE%EF%B8%8F&pause=1200&color=58A6FF&vCenter=true&repeat=true)
+**Ethical Hacker · Security Researcher · Java & Flutter Developer**
 
-[![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.java.com/)
-[![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)
-[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)](https://git-scm.com/)
+[![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)](https://www.java.com/)
+[![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white)](https://dart.dev/)
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Kali](https://img.shields.io/badge/Kali_Linux-367BF0?style=flat-square&logo=kali-linux&logoColor=white)](https://www.kali.org/)
+[![Burp Suite](https://img.shields.io/badge/Burp_Suite-FE8C00?style=flat-square&logo=burpsuite&logoColor=white)](https://portswigger.net/burp)
+[![Metasploit](https://img.shields.io/badge/Metasploit-3B3B6D?style=flat-square&logo=metasploit&logoColor=white)](https://www.metasploit.com/)
+[![Nmap](https://img.shields.io/badge/Nmap-4682B4?style=flat-square&logo=nmap&logoColor=white)](https://nmap.org/)
+[![Wireshark](https://img.shields.io/badge/Wireshark-1679A7?style=flat-square&logo=wireshark&logoColor=white)](https://www.wireshark.org/)
+[![OWASP](https://img.shields.io/badge/OWASP-0F7B6F?style=flat-square&logo=owasp&logoColor=white)](https://owasp.org/)
+[![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)](https://git-scm.com/)
 
 </div>
 
 ---
-
-## 🐍
 
 <div align="center">
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./dist/github-snake-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="./dist/github-snake-light.svg">
-  <img alt="Snake eating my GitHub contribution graph" src="./dist/github-snake-light.svg">
+  <img alt="Snake traversing my GitHub contribution graph" src="./dist/github-snake-light.svg">
 </picture>
 
 </div>
 
 ---
 
-## 🧑‍💻 About
+## 🖥️ About
 
-<div align="center">
+```bash
+$ cat /etc/motd
+────────────────────────────────────────────────
+ Offensive Security   Web App Testing · Recon · Reporting
+ Backend              Java · REST APIs · Data Structures
+ Mobile               Flutter · Dart
+────────────────────────────────────────────────
+```
 
-**Java developer in progress** — working through DSA fundamentals and building
-Flutter and full-stack projects along the way.
-
-</div>
-
-- 🌱 Learning **DSA** in Java: sorting, searching, recursion, divide & conquer, and complexity analysis.
-- 🔭 Building with **Flutter** and **Dart**, plus full-stack projects.
-- 💬 Ask me about **Java**, **DSA**, **Flutter**, or **Dart**.
-- ⚡ Fun fact: I break things in isolated lab environments so production stays boring.
+- 🕵️ Focused on **ethical hacking** — web application testing, reconnaissance, and structured security assessment.
+- 🔐 Practising **OWASP Top 10** analysis against deliberately vulnerable lab targets such as Metasploitable and DVWA.
+- 🌱 Strengthening my **DSA** foundations in Java — sorting, searching, recursion, divide & conquer, and complexity analysis.
+- 📱 Building **Flutter** and full-stack projects between assessments.
+- ⚖️ Everything is done in **isolated, authorised lab environments** — never against systems I don't own or have written permission to test.
 - 📫 Reach me at **bhavyadudhatrahere@gmail.com**
+
+## 🧰 Toolkit
+
+| Category | Tools |
+|:--|:--|
+| **Assessment** | Burp Suite · OWASP ZAP · Nmap · Wireshark · Metasploit · Nikto |
+| **Platform** | Kali Linux · Parrot OS · VirtualBox isolated lab networks |
+| **Languages** | Java · Dart · Python · Bash · SQL |
+| **Building** | Flutter · Node.js · Git · Docker |
 
 ## 📈 Progress
 
@@ -53,18 +75,19 @@ Flutter and full-stack projects along the way.
 | Divide & conquer | In progress |
 | Recursion | In progress |
 | Flutter / Dart | In progress |
+| OWASP Top 10 & web app testing | In progress |
 
 ## 📊 Stats
 
 <div align="center">
 
-<img height="170" src="https://github-readme-stats.vercel.app/api?username=BhavyaDudhatra&show_icons=true&theme=radical&hide_border=true" alt="Bhavya Dudhatra's GitHub statistics" />
+<img height="170" src="https://github-readme-stats.vercel.app/api?username=BhavyaDudhatra&show_icons=true&theme=tokyonight&hide_border=true" alt="GitHub statistics" />
 
-<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs?username=BhavyaDudhatra&layout=compact&theme=radical&hide_border=true" alt="Most used languages" />
+<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs?username=BhavyaDudhatra&layout=compact&theme=tokyonight&hide_border=true" alt="Most used languages" />
 
 <br>
 
-<img src="https://streak-stats.demolab.com?user=BhavyaDudhatra&theme=radical&hide_border=true" alt="Contribution streak" />
+<img src="https://streak-stats.demolab.com?user=BhavyaDudhatra&theme=tokyonight&hide_border=true" alt="Contribution streak" />
 
 </div>
 
@@ -72,23 +95,27 @@ Flutter and full-stack projects along the way.
 
 | Project | Description |
 |:--|:--|
+| [ExploitX](https://github.com/BhavyaDudhatra/ExploitX) | Automation framework for attack-surface enumeration and triage. |
 | [JAVA-DSA](https://github.com/BhavyaDudhatra/JAVA-DSA) | DSA practice in Java: sorting, searching, recursion, divide & conquer, and complexity analysis. |
 | [Google-Map-Data-Extractor](https://github.com/BhavyaDudhatra/Google-Map-Data-Extractor) | Extracts and processes location data from Google Maps. |
 | [Follow-Unfollow](https://github.com/BhavyaDudhatra/Follow-Unfollow) | Follow/unfollow automation tool. |
 | [BlindRecorder](https://github.com/BhavyaDudhatra/BlindRecorder) | Voice Recorder app for Android. |
 | [BePresent](https://github.com/BhavyaDudhatra/BePresent) | Attendance and presence tracking app. |
-| [ExploitX](https://github.com/BhavyaDudhatra/ExploitX) | Security automation and recon tooling. |
 | [FlutterBasics](https://github.com/BhavyaDudhatra/FlutterBasics) | Learning Flutter and Dart fundamentals. |
 
 ## 📫 Contact
 
-[![Email](https://img.shields.io/badge/Email-bhavyadudhatrahere%40gmail.com-c0392b?style=for-the-badge&logo=gmail&logoColor=white)](mailto:bhavyadudhatrahere@gmail.com)
-[![GitHub](https://img.shields.io/badge/GitHub-BhavyaDudhatra-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/BhavyaDudhatra)
+[![Email](https://img.shields.io/badge/Email-bhavyadudhatrahere%40gmail.com-c0392b?style=flat-square&logo=gmail&logoColor=white)](mailto:bhavyadudhatrahere@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-BhavyaDudhatra-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/BhavyaDudhatra)
 
 ---
 
 <div align="center">
 
-**Made with patience and too much chai ☕**
+```bash
+$ echo "Curiosity is the vulnerability."
+$ uptime
+ still learning... up 0 days, load 100%
+```
 
 </div>

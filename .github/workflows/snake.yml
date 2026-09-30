@@ -20,6 +20,8 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       # v3 is required: the `outputs` input (multi-file, per-theme palettes)
       # does not exist on v1.
       - uses: Platane/snk@v3
@@ -34,10 +36,13 @@ jobs:
         run: |
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add dist
+          git add --force dist
           if git diff --quiet --cached; then
             echo 'Snake SVG unchanged, nothing to commit.'
             exit 0
           fi
           git commit -m 'Update snake animation'
-          git push
+          # This push re-triggers this workflow, but the follow-up run sees an
+          # unchanged SVG and exits at the `git diff --quiet` guard above, so it
+          # terminates after one extra run rather than looping.
+          git push origin HEAD:${{ github.ref_name }}

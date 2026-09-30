@@ -93,24 +93,47 @@ function esc(s) {
 
 /* ---------- 0. name banner ---------- */
 /*
- * A wordmark rather than ASCII art: SVG text scales cleanly on any viewport,
- * can be tinted per theme, and can be glitched with CSS. The ASCII block it
- * replaced was fixed-width and broke on narrow screens.
+ * The name is drawn as a 5x7 dot matrix where every pixel is a binary digit:
+ * lit pixels are 1, unlit are 0, and the whole thing is tinted with the
+ * terminal green from the palette. It replaces both a plain SVG wordmark and
+ * the original fixed-width ASCII art, which broke on narrow viewports.
  *
- * The glitch is built the way real datamosh does it, from three layers:
- *   1. a base gradient fill that never moves,
+ * The glitch is layered the way real datamosh does it:
+ *   1. the green binary grid, which never moves,
  *   2. red/cyan copies offset by a pixel or two (chromatic aberration),
  *   3. horizontal slices clipped to thin bands and shifted sideways.
  * Layer 3 is what sells it; the colour split alone just looks blurry.
  */
 
+// Only the glyphs the wordmark needs. Anything missing here throws at build
+// time rather than rendering a blank cell.
+const BIN_FONT = {
+  A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+  B: ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
+  H: ['10001', '10001', '10001', '11111', '10001', '10001', '10001'],
+  V: ['10001', '10001', '10001', '10001', '10001', '10001', '01110'],
+  Y: ['10001', '10001', '01110', '00100', '00100', '00100', '00100'],
+};
+const GLYPH_W = 5;
+const GLYPH_H = 7;
+
 function wordmark(p) {
   const r = rng(0x5eed00);
-  const BW = 760;
-  const BH = 170;
+  const BW = 1040;
+  const BH = 250;
   const name = 'BHAVYA';
-  const size = 62;
-  const baseline = 96;
+  name.split('').forEach((ch) => {
+    if (!BIN_FONT[ch]) throw new Error(`BIN_FONT has no glyph for "${ch}"`);
+  });
+
+  const cell = 12; // pitch per binary digit
+  const lh = 23; // row pitch
+  const fontSize = 20;
+  const cols = name.length * GLYPH_W + (name.length - 1); // +1 gap between glyphs
+  const gridW = cols * cell;
+  const x0 = Math.round((BW - gridW) / 2);
+  const top = 50; // first row baseline
+  const gridBottom = top + (GLYPH_H - 1) * lh;
   const cx = BW / 2;
 
   // The name spelled out in 8-bit ASCII, so the binary row is a real encoding
@@ -121,7 +144,7 @@ function wordmark(p) {
 
   // Scrolling binary marquee above the name.
   let strip = '';
-  const stripCols = 118;
+  const stripCols = 160;
   for (let i = 0; i < stripCols; i++) strip += r() < 0.5 ? '0' : '1';
   const stripW = stripCols * charW(11);
 
@@ -129,16 +152,39 @@ function wordmark(p) {
   // the pitch has to clear that or the last column runs off the right edge.
   let rain = '';
   const rainPitch = 31;
-  const rainCols = 24;
+  const rainCols = 32;
   for (let c = 0; c < rainCols; c++) {
-    const x = 8 + c * rainPitch;
+    const x = 10 + c * rainPitch;
     let col = '';
-    const rows = 2;
+    const rows = 3;
     for (let i = 0; i < rows; i++) col += (r() < 0.5 ? '0' : '1') + ' ';
     const dur = (3.5 + r() * 4).toFixed(2);
     const del = (-r() * 6).toFixed(2);
-    rain += `<text x="${x}" y="${baseline - 46}" class="f11 rain" style="animation:fall ${dur}s linear infinite;animation-delay:${del}s">${col}</text>`;
+    rain += `<text x="${x}" y="${top - 22}" class="f11 rain" style="animation:fall ${dur}s linear infinite;animation-delay:${del}s">${col}</text>`;
   }
+
+  // The name as a dot matrix of binary digits. Lit pixels are 1, unlit are 0,
+  // so the glyph shape is carried by the bright green 1s against dim 0s.
+  // Each row is one <text> of equal-length strings at a fixed pitch, which
+  // keeps the grid monospaced without needing per-digit positioning.
+  const rowStrings = [];
+  for (let row = 0; row < GLYPH_H; row++) {
+    let line = '';
+    for (let g = 0; g < name.length; g++) {
+      const glyph = BIN_FONT[name[g]][row];
+      // Unlit pixels are rendered as 0 with reduced opacity rather than
+      // spaces, so the grid reads as binary all the way across.
+      line += glyph.replace(/0/g, '0').replace(/1/g, '1');
+      if (g < name.length - 1) line += '0';
+    }
+    rowStrings.push(line);
+  }
+
+  // Grid geometry, used by the sweep clip and the slice bands.
+  const gridH = GLYPH_H * lh;
+  const bitsY = gridBottom + 44;
+  const ruleY = bitsY + 16;
+  const roleY = ruleY + 20;
 
   // Slice bands for the displacement glitch: thin horizontal cuts through the
   // glyphs that jump sideways for a frame. `at` is when the tear fires within
@@ -169,17 +215,37 @@ function wordmark(p) {
   <stop offset="50%" stop-color="${p.fg}" stop-opacity="0.7"/>
   <stop offset="100%" stop-color="${p.bg}" stop-opacity="0"/>
 </linearGradient>
-<clipPath id="wmClip"><text x="${cx}" y="${baseline}" text-anchor="middle" font-size="${size}" letter-spacing="12" font-weight="700">${name}</text></clipPath>
-<clipPath id="wmStripClip"><rect x="0" y="8" width="${BW}" height="20"/></clipPath>
+<clipPath id="wmClip"><rect x="0" y="${top - lh}" width="${BW}" height="${gridH + lh}" /></clipPath>
+<clipPath id="wmStripClip"><rect x="0" y="8" width="${BW}" height="24"/></clipPath>
 ${slices}`;
 
   const nameText = (cls, extra = '') =>
     `<text x="${cx}" y="${baseline}" text-anchor="middle" font-size="${size}" font-weight="700" letter-spacing="12"${extra ? ' ' + extra : ''}${cls ? ` class="${cls}"` : ''}>${name}</text>`;
 
-  const sliceGroups = bands
+  const matrixBase = rowStrings
     .map(
-      (b, i) =>
-        `<g clip-path="url(#wmS${i})">` + nameText(`sl r${i}`) + `</g>`
+      (txt, i) =>
+        `<text x="${x0}" y="${top + i * lh}" class="f11" xml:space="preserve">${txt
+          .replace(/0/g, '<tspan class="bin0">0</tspan>')
+          .replace(/1/g, '<tspan class="bin1">1</tspan>')}</text>`
+    )
+    .join('\n');
+
+  const matrixGlitch = rowStrings
+    .map(
+      (txt, i) =>
+        `<text x="${x0}" y="${top + i * lh}" class="f11 ab-layer" xml:space="preserve">${txt
+          .replace(/0/g, '<tspan class="bin0">0</tspan>')
+          .replace(/1/g, '<tspan class="bin1">1</tspan>')}</text>`
+    )
+    .join('\n');
+
+  const matrixSlice = rowStrings
+    .map(
+      (txt, i) =>
+        `<text x="${x0}" y="${top + i * lh}" class="f11 sl-layer" xml:space="preserve">${txt
+          .replace(/0/g, '<tspan class="bin0">0</tspan>')
+          .replace(/1/g, '<tspan class="bin1">1</tspan>')}</text>`
     )
     .join('\n');
 
@@ -193,27 +259,39 @@ ${slices}`;
   </g>
 </g>
 <g class="word">
-  ${nameText('', `style="fill:url(#wmGrad)"`)}
+  ${matrixBase}
   <g clip-path="url(#wmClip)">
-    <rect x="0" y="0" width="150" height="${BH}" style="fill:url(#wmSweep)" class="sweep"/>
+    <rect x="0" y="${top - lh}" width="150" height="${gridH + lh}" style="fill:url(#wmSweep)" class="sweep"/>
   </g>
-  ${nameText('ab red')}
-  ${nameText('ab cyan')}
-  ${sliceGroups}
+  <g class="ab red-group">${matrixGlitch}</g>
+  <g class="ab cyan-group">${matrixGlitch}</g>
+  ${bands
+    .map(
+      (b, i) =>
+        `<g clip-path="url(#wmS${i})"><g class="sl r${i}">${matrixSlice}</g></g>`
+    )
+    .join('\n')}
 </g>
-<text x="${cx}" y="128" text-anchor="middle" class="f11 bits" xml:space="preserve">${bits}</text>
-<line x1="${cx - 170}" y1="140" x2="${cx + 170}" y2="140" class="edge"/>
-<text x="${cx}" y="159" text-anchor="middle" class="dim f11" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
+<text x="${cx}" y="${bitsY}" text-anchor="middle" class="f11 bits" xml:space="preserve">${bits}</text>
+<line x1="${cx - 220}" y1="${ruleY}" x2="${cx + 220}" y2="${ruleY}" class="edge"/>
+<text x="${cx}" y="${roleY}" text-anchor="middle" class="dim f11" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
 <style>
   .strip{fill:var(--dim)}
   .rain{fill:var(--cyan)}
+  .bin1{fill:var(--green)}
+  .bin0{fill:var(--green);opacity:.28}
   .sweep{animation:sweep 7s ease-in-out infinite}
   .ab{opacity:0;mix-blend-mode:screen;animation:aberration 5s steps(1) infinite}
-  .red{fill:var(--red)}
-  .cyan{fill:var(--cyan)}
-  .sl{fill:var(--fg);opacity:0;mix-blend-mode:screen;animation:slice 5s steps(1) infinite}
+  .ab-layer .bin1,.ab-layer .bin0{opacity:0}
+  .red-group .ab-layer .bin1{fill:var(--red)}
+  .red-group .ab-layer .bin0{fill:var(--red)}
+  .cyan-group .ab-layer .bin1{fill:var(--cyan)}
+  .cyan-group .ab-layer .bin0{fill:var(--cyan)}
+  .sl{opacity:0;mix-blend-mode:screen;animation:slice 5s steps(1) infinite}
+  .sl-layer .bin1{fill:var(--green)}
+  .sl-layer .bin0{fill:var(--green);opacity:.28}
   ${sliceDelays}
-  .bits{fill:var(--cyan);opacity:.75;animation:bits 5s steps(1) infinite}
+  .bits{fill:var(--green);opacity:.9;animation:bits 5s steps(1) infinite}
   @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(${stripW}px)}}
   @keyframes fall{from{transform:translateY(0)}to{transform:translateY(150px)}}
   @keyframes sweep{0%{transform:translateX(-150px)}50%{transform:translateX(${BW}px)}100%{transform:translateX(-150px)}}

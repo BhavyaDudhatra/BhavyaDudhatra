@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 170" width="760" height="170" role="img" aria-label="BHAVYA — ethical hacker and security researcher, glitched with binary">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 264" width="1120" height="264" overflow="hidden" role="img" aria-label="BHAVYA — ethical hacker and security researcher, glitched with binary">
 
 <style>
   :root{
@@ -14,62 +14,74 @@
   .f10{font-size:10px} .f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
   @media (prefers-reduced-motion:reduce){*{animation:none !important}}
 </style>
-<rect x="0" y="0" width="760" height="170" rx="10" class="panel"/>
-<rect x="0.5" y="0.5" width="759" height="169" rx="10" fill="none" class="edge"/>
+<rect x="0" y="0" width="1120" height="264" rx="10" class="panel"/>
+<rect x="0.5" y="0.5" width="1119" height="263" rx="10" fill="none" class="edge"/>
 <defs>
-<linearGradient id="wmGrad" x1="0" y1="0" x2="1" y2="0">
-  <stop offset="0%" stop-color="#0969da"/>
-  <stop offset="45%" stop-color="#1b7c83"/>
-  <stop offset="100%" stop-color="#0969da"/>
-</linearGradient>
 <linearGradient id="wmSweep" x1="0" y1="0" x2="1" y2="0">
   <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
   <stop offset="50%" stop-color="#24292f" stop-opacity="0.7"/>
   <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
 </linearGradient>
-<clipPath id="wmClip"><text x="380" y="96" text-anchor="middle" font-size="62" letter-spacing="12" font-weight="700">BHAVYA</text></clipPath>
-<clipPath id="wmStripClip"><rect x="0" y="8" width="760" height="20"/></clipPath>
-<clipPath id="wmS0"><rect x="0" y="50" width="760" height="9"/></clipPath>
-<clipPath id="wmS1"><rect x="0" y="66" width="760" height="7"/></clipPath>
-<clipPath id="wmS2"><rect x="0" y="78" width="760" height="11"/></clipPath>
-<clipPath id="wmS3"><rect x="0" y="90" width="760" height="8"/></clipPath></defs>
+<clipPath id="wmClip"><rect x="0" y="30" width="1120" height="160" /></clipPath>
+<clipPath id="wmStripClip"><rect x="0" y="8" width="1120" height="24"/></clipPath>
+<g id="wmMatrix" class="grid"><text x="217" y="50" class="f11" letter-spacing="13.40" xml:space="preserve"><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan></text>
+<text x="217" y="70" class="f11" letter-spacing="13.40" xml:space="preserve"><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan></text>
+<text x="217" y="90" class="f11" letter-spacing="13.40" xml:space="preserve"><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan></text>
+<text x="217" y="110" class="f11" letter-spacing="13.40" xml:space="preserve"><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan></text>
+<text x="217" y="130" class="f11" letter-spacing="13.40" xml:space="preserve"><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan></text>
+<text x="217" y="150" class="f11" letter-spacing="13.40" xml:space="preserve"><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan></text>
+<text x="217" y="170" class="f11" letter-spacing="13.40" xml:space="preserve"><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin0">0</tspan><tspan class="bin1">1</tspan></text></g>
+<clipPath id="wmS0"><rect x="0" y="42" width="1120" height="9"/></clipPath>
+<clipPath id="wmS1"><rect x="0" y="82" width="1120" height="7"/></clipPath>
+<clipPath id="wmS2"><rect x="0" y="122" width="1120" height="11"/></clipPath>
+<clipPath id="wmS3"><rect x="0" y="162" width="1120" height="8"/></clipPath></defs>
 
-<g style="opacity:.16"><text x="8" y="50" class="f11 rain" style="animation:fall 6.15s linear infinite;animation-delay:-4.93s">1 1 </text><text x="39" y="50" class="f11 rain" style="animation:fall 7.24s linear infinite;animation-delay:-2.82s">0 0 </text><text x="70" y="50" class="f11 rain" style="animation:fall 6.37s linear infinite;animation-delay:-0.22s">0 0 </text><text x="101" y="50" class="f11 rain" style="animation:fall 6.75s linear infinite;animation-delay:-4.78s">1 1 </text><text x="132" y="50" class="f11 rain" style="animation:fall 6.03s linear infinite;animation-delay:-5.79s">1 0 </text><text x="163" y="50" class="f11 rain" style="animation:fall 7.49s linear infinite;animation-delay:-2.05s">0 1 </text><text x="194" y="50" class="f11 rain" style="animation:fall 7.24s linear infinite;animation-delay:-3.68s">0 0 </text><text x="225" y="50" class="f11 rain" style="animation:fall 7.17s linear infinite;animation-delay:-0.94s">1 0 </text><text x="256" y="50" class="f11 rain" style="animation:fall 6.55s linear infinite;animation-delay:-3.09s">1 0 </text><text x="287" y="50" class="f11 rain" style="animation:fall 6.86s linear infinite;animation-delay:-2.77s">1 0 </text><text x="318" y="50" class="f11 rain" style="animation:fall 3.91s linear infinite;animation-delay:-0.89s">1 0 </text><text x="349" y="50" class="f11 rain" style="animation:fall 4.25s linear infinite;animation-delay:-0.37s">1 1 </text><text x="380" y="50" class="f11 rain" style="animation:fall 6.68s linear infinite;animation-delay:-4.66s">0 1 </text><text x="411" y="50" class="f11 rain" style="animation:fall 6.24s linear infinite;animation-delay:-1.46s">0 0 </text><text x="442" y="50" class="f11 rain" style="animation:fall 3.62s linear infinite;animation-delay:-1.00s">1 1 </text><text x="473" y="50" class="f11 rain" style="animation:fall 4.42s linear infinite;animation-delay:-3.53s">1 1 </text><text x="504" y="50" class="f11 rain" style="animation:fall 6.41s linear infinite;animation-delay:-0.63s">1 0 </text><text x="535" y="50" class="f11 rain" style="animation:fall 7.28s linear infinite;animation-delay:-1.12s">0 1 </text><text x="566" y="50" class="f11 rain" style="animation:fall 4.10s linear infinite;animation-delay:-0.04s">0 1 </text><text x="597" y="50" class="f11 rain" style="animation:fall 6.57s linear infinite;animation-delay:-3.94s">1 0 </text><text x="628" y="50" class="f11 rain" style="animation:fall 7.22s linear infinite;animation-delay:-1.16s">0 0 </text><text x="659" y="50" class="f11 rain" style="animation:fall 5.97s linear infinite;animation-delay:-2.48s">1 1 </text><text x="690" y="50" class="f11 rain" style="animation:fall 4.76s linear infinite;animation-delay:-3.55s">1 1 </text><text x="721" y="50" class="f11 rain" style="animation:fall 6.27s linear infinite;animation-delay:-4.46s">0 0 </text></g>
+<g style="opacity:.16"><text x="10" y="28" class="f11 rain" style="animation:fall 7.35s linear infinite;animation-delay:-1.13s">0 0 1 </text><text x="41" y="28" class="f11 rain" style="animation:fall 6.68s linear infinite;animation-delay:-4.66s">0 0 1 </text><text x="72" y="28" class="f11 rain" style="animation:fall 4.48s linear infinite;animation-delay:-3.94s">0 0 1 </text><text x="103" y="28" class="f11 rain" style="animation:fall 5.92s linear infinite;animation-delay:-5.08s">1 0 0 </text><text x="134" y="28" class="f11 rain" style="animation:fall 4.84s linear infinite;animation-delay:-4.37s">0 1 1 </text><text x="165" y="28" class="f11 rain" style="animation:fall 7.28s linear infinite;animation-delay:-1.12s">0 0 1 </text><text x="196" y="28" class="f11 rain" style="animation:fall 3.53s linear infinite;animation-delay:-4.27s">0 1 0 </text><text x="227" y="28" class="f11 rain" style="animation:fall 5.50s linear infinite;animation-delay:-0.25s">0 1 1 </text><text x="258" y="28" class="f11 rain" style="animation:fall 7.01s linear infinite;animation-delay:-3.70s">1 0 1 </text><text x="289" y="28" class="f11 rain" style="animation:fall 4.76s linear infinite;animation-delay:-3.55s">0 1 1 </text><text x="320" y="28" class="f11 rain" style="animation:fall 6.47s linear infinite;animation-delay:-1.89s">0 0 1 </text><text x="351" y="28" class="f11 rain" style="animation:fall 6.18s linear infinite;animation-delay:-4.16s">0 1 0 </text><text x="382" y="28" class="f11 rain" style="animation:fall 7.23s linear infinite;animation-delay:-0.38s">0 1 1 </text><text x="413" y="28" class="f11 rain" style="animation:fall 3.52s linear infinite;animation-delay:-2.24s">0 1 1 </text><text x="444" y="28" class="f11 rain" style="animation:fall 5.23s linear infinite;animation-delay:-0.24s">0 1 0 </text><text x="475" y="28" class="f11 rain" style="animation:fall 6.18s linear infinite;animation-delay:-3.40s">1 1 1 </text><text x="506" y="28" class="f11 rain" style="animation:fall 4.89s linear infinite;animation-delay:-4.14s">1 0 1 </text><text x="537" y="28" class="f11 rain" style="animation:fall 5.78s linear infinite;animation-delay:-2.71s">1 0 0 </text><text x="568" y="28" class="f11 rain" style="animation:fall 6.41s linear infinite;animation-delay:-2.83s">0 0 1 </text><text x="599" y="28" class="f11 rain" style="animation:fall 7.08s linear infinite;animation-delay:-1.28s">0 0 1 </text><text x="630" y="28" class="f11 rain" style="animation:fall 7.19s linear infinite;animation-delay:-1.62s">1 0 0 </text><text x="661" y="28" class="f11 rain" style="animation:fall 3.68s linear infinite;animation-delay:-5.48s">1 1 1 </text><text x="692" y="28" class="f11 rain" style="animation:fall 6.01s linear infinite;animation-delay:-5.04s">1 0 1 </text><text x="723" y="28" class="f11 rain" style="animation:fall 5.25s linear infinite;animation-delay:-3.72s">0 0 1 </text><text x="754" y="28" class="f11 rain" style="animation:fall 6.90s linear infinite;animation-delay:-1.02s">1 1 1 </text><text x="785" y="28" class="f11 rain" style="animation:fall 6.16s linear infinite;animation-delay:-2.02s">0 1 0 </text><text x="816" y="28" class="f11 rain" style="animation:fall 6.74s linear infinite;animation-delay:-0.83s">1 1 0 </text><text x="847" y="28" class="f11 rain" style="animation:fall 3.93s linear infinite;animation-delay:-4.50s">0 1 0 </text><text x="878" y="28" class="f11 rain" style="animation:fall 3.87s linear infinite;animation-delay:-3.28s">0 0 0 </text><text x="909" y="28" class="f11 rain" style="animation:fall 3.51s linear infinite;animation-delay:-4.88s">0 0 0 </text><text x="940" y="28" class="f11 rain" style="animation:fall 5.52s linear infinite;animation-delay:-2.46s">1 0 0 </text><text x="971" y="28" class="f11 rain" style="animation:fall 3.74s linear infinite;animation-delay:-0.79s">0 1 0 </text></g>
 <g clip-path="url(#wmStripClip)">
   <g class="strip" style="animation:marquee 16s linear infinite">
-    <text x="-398.79999999999995" y="22" text-anchor="middle" class="f11" xml:space="preserve">1110000111100010000001011110011010011101001111101101000001010011100110000010110101001011110011100001101100100100001111</text>
-    <text x="380" y="22" text-anchor="middle" class="f11" xml:space="preserve">1110000111100010000001011110011010011101001111101101000001010011100110000010110101001011110011100001101100100100001111</text>
-    <text x="1158.8" y="22" text-anchor="middle" class="f11" xml:space="preserve">1110000111100010000001011110011010011101001111101101000001010011100110000010110101001011110011100001101100100100001111</text>
+    <text x="-496" y="22" text-anchor="middle" class="f11" xml:space="preserve">1110000111100010000001011110011010011101001111101101000001010011100110000010110101001011110011100001101100100100001111111100100010111110110110001110101011101010</text>
+    <text x="560" y="22" text-anchor="middle" class="f11" xml:space="preserve">1110000111100010000001011110011010011101001111101101000001010011100110000010110101001011110011100001101100100100001111111100100010111110110110001110101011101010</text>
+    <text x="1616" y="22" text-anchor="middle" class="f11" xml:space="preserve">1110000111100010000001011110011010011101001111101101000001010011100110000010110101001011110011100001101100100100001111111100100010111110110110001110101011101010</text>
   </g>
 </g>
 <g class="word">
-  <text x="380" y="96" text-anchor="middle" font-size="62" font-weight="700" letter-spacing="12" style="fill:url(#wmGrad)">BHAVYA</text>
+  <use href="#wmMatrix" class="layer base"/>
   <g clip-path="url(#wmClip)">
-    <rect x="0" y="0" width="150" height="170" style="fill:url(#wmSweep)" class="sweep"/>
+    <rect x="0" y="30" width="150" height="160" style="fill:url(#wmSweep)" class="sweep"/>
   </g>
-  <text x="380" y="96" text-anchor="middle" font-size="62" font-weight="700" letter-spacing="12" class="ab red">BHAVYA</text>
-  <text x="380" y="96" text-anchor="middle" font-size="62" font-weight="700" letter-spacing="12" class="ab cyan">BHAVYA</text>
-  <g clip-path="url(#wmS0)"><text x="380" y="96" text-anchor="middle" font-size="62" font-weight="700" letter-spacing="12" class="sl r0">BHAVYA</text></g>
-<g clip-path="url(#wmS1)"><text x="380" y="96" text-anchor="middle" font-size="62" font-weight="700" letter-spacing="12" class="sl r1">BHAVYA</text></g>
-<g clip-path="url(#wmS2)"><text x="380" y="96" text-anchor="middle" font-size="62" font-weight="700" letter-spacing="12" class="sl r2">BHAVYA</text></g>
-<g clip-path="url(#wmS3)"><text x="380" y="96" text-anchor="middle" font-size="62" font-weight="700" letter-spacing="12" class="sl r3">BHAVYA</text></g>
+  <g class="ab red-group"><use href="#wmMatrix" class="layer"/></g>
+  <g class="ab cyan-group"><use href="#wmMatrix" class="layer"/></g>
+  <g clip-path="url(#wmS0)"><g class="sl r0"><use href="#wmMatrix" class="layer"/></g></g>
+<g clip-path="url(#wmS1)"><g class="sl r1"><use href="#wmMatrix" class="layer"/></g></g>
+<g clip-path="url(#wmS2)"><g class="sl r2"><use href="#wmMatrix" class="layer"/></g></g>
+<g clip-path="url(#wmS3)"><g class="sl r3"><use href="#wmMatrix" class="layer"/></g></g>
 </g>
-<text x="380" y="128" text-anchor="middle" class="f11 bits" xml:space="preserve">01000010 01001000 01000001 01010110 01011001 01000001</text>
-<line x1="210" y1="140" x2="550" y2="140" class="edge"/>
-<text x="380" y="159" text-anchor="middle" class="dim f11" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
+<text x="560" y="214" text-anchor="middle" class="f11 bits" xml:space="preserve">01000010 01001000 01000001 01010110 01011001 01000001</text>
+<line x1="340" y1="230" x2="780" y2="230" class="edge"/>
+<text x="560" y="250" text-anchor="middle" class="dim f11" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
 <style>
   .strip{fill:var(--dim)}
   .rain{fill:var(--cyan)}
+  /* Digits take their colour from the inherited "color" property, which each
+     use-instance sets, so one matrix definition serves every glitch colour.
+     Note: no raw angle brackets are allowed in here; style content is XML.
+     The shared matrix must NOT declare a color itself: a declaration on the
+     cloned group would outrank the inherited color and every layer, including
+     the red/cyan aberration, would render green. */
+  .bin1{fill:currentColor}
+  .bin0{fill:currentColor;opacity:.28}
+  .base{color:var(--green)}
   .sweep{animation:sweep 7s ease-in-out infinite}
   .ab{opacity:0;mix-blend-mode:screen;animation:aberration 5s steps(1) infinite}
-  .red{fill:var(--red)}
-  .cyan{fill:var(--cyan)}
-  .sl{fill:var(--fg);opacity:0;mix-blend-mode:screen;animation:slice 5s steps(1) infinite}
+  .red-group{color:var(--red)}
+  .cyan-group{color:var(--cyan)}
+  .sl{opacity:0;mix-blend-mode:screen;animation:slice 5s steps(1) infinite}
+  .sl .layer{color:var(--fg)}
   .r0{animation-delay:0.8s}.r1{animation-delay:3.4s}.r2{animation-delay:2.8s}.r3{animation-delay:4.6s}
-  .bits{fill:var(--cyan);opacity:.75;animation:bits 5s steps(1) infinite}
-  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(778.8px)}}
+  .bits{fill:var(--green);opacity:.9;animation:bits 5s steps(1) infinite}
+  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(1056px)}}
   @keyframes fall{from{transform:translateY(0)}to{transform:translateY(150px)}}
-  @keyframes sweep{0%{transform:translateX(-150px)}50%{transform:translateX(760px)}100%{transform:translateX(-150px)}}
+  @keyframes sweep{0%{transform:translateX(-150px)}50%{transform:translateX(1120px)}100%{transform:translateX(-150px)}}
   /* Chromatic split: a frame of red/cyan fringing, then clean. */
   @keyframes aberration{
     0%,80%{opacity:0;transform:translate(0,0)}

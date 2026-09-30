@@ -45,6 +45,51 @@ const ok = (name, cond, extra = '') => {
 };
 const num0 = (v) => parseFloat(v || '0');
 
+console.log('\n== generator runs and output is current ==');
+// This is the check that was missing: the suite used to validate only the
+// committed SVGs, so a generator that crashed still reported all green while
+// the profile kept serving stale artwork.
+{
+  const root = path.join(__dirname, '..');
+  let out = '';
+  let code = 0;
+  try {
+    out = require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'gen-game-art.js')], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (e) {
+    code = e.status === undefined ? 1 : e.status;
+    out = `${e.stdout || ''}${e.stderr || ''}`;
+  }
+  ok('gen-game-art.js exits cleanly', code === 0, out.split('\n').slice(0, 6).join(' | '));
+
+  // A throwing generator must never leave a stale file looking validated.
+  const dirty = [];
+  for (const [scene] of SCENES) {
+    for (const theme of ['dark', 'light']) {
+      const f = path.join(DIR, `${scene}-${theme}.svg`);
+      if (!fs.existsSync(f)) continue;
+      const age = Date.now() - fs.statSync(f).mtimeMs;
+      if (age < 60_000) dirty.push(`${scene}-${theme}.svg`);
+    }
+  }
+  ok('regeneration rewrote every scene', dirty.length === SCENES.length * 2,
+    `rewrote ${dirty.length} of ${SCENES.length * 2}`);
+
+  // Output must be deterministic: rerunning must not produce a diff.
+  const before = SCENES.flatMap(([s]) => ['dark', 'light'].map((t) => `${s}-${t}.svg`))
+    .map((f) => fs.readFileSync(path.join(DIR, f), 'utf8'));
+  require('child_process').execFileSync(process.execPath, [path.join(__dirname, 'gen-game-art.js')], {
+    cwd: root, stdio: 'ignore',
+  });
+  const after = SCENES.flatMap(([s]) => ['dark', 'light'].map((t) => `${s}-${t}.svg`))
+    .map((f) => fs.readFileSync(path.join(DIR, f), 'utf8'));
+  const drift = before.filter((b, i) => b !== after[i]).length;
+  ok('generation is deterministic', drift === 0, `${drift} file(s) differ between runs`);
+}
+
 console.log('\n== files exist ==');
 const files = [];
 for (const [scene] of SCENES) {
@@ -153,11 +198,26 @@ for (const { file, doc } of parsed) {
   doc.window.document.querySelectorAll('[clip-path]').forEach((g) => {
     [...g.querySelectorAll('*')].forEach((c) => clipped.add(c));
   });
+  // Layers that are deliberately drawn off-canvas: the falling-rain columns
+  // start below the frame and travel in. That is only safe because the root
+  // clips, so the exemption is conditional on overflow:hidden being declared.
+  const rootClips = (svg.getAttribute('overflow') || '') === 'hidden';
+  ok(`${name} root clips off-canvas layers`, rootClips, svg.getAttribute('overflow') || 'unset');
+  const offCanvas = new Set();
+  if (rootClips) {
+    doc.window.document.querySelectorAll('.rain').forEach((g) => {
+      [...g.querySelectorAll('*')].forEach((c) => offCanvas.add(c));
+    });
+  }
+  // Content inside <defs> is a template, not painted output; the wordmark matrix
+  // lives there and is instanced with <use>, so judging it as drawn content
+  // reports positions that never appear.
+  doc.window.document.querySelectorAll('defs *').forEach((el) => clipped.add(el));
   doc.window.document.querySelectorAll('rect, circle, text, line').forEach((el) => {
     // Full-bleed backgrounds are intentional and fill the card exactly, so
     // they are excluded; this check targets stray content drawn off-card.
     if (el.tagName === 'rect' && num0(el.getAttribute('width')) === vbW) return;
-    if (clipped.has(el)) return;
+    if (clipped.has(el) || offCanvas.has(el)) return;
     const num = (a) => parseFloat(el.getAttribute(a) || '0');
     let x;
     let y;
@@ -237,81 +297,160 @@ console.log('\n== matrix rain density ==');
   ok('has a dense field of columns', cols >= 25, `cols=${cols}`);
   ok('escapes & < > in glyphs', /&amp;|&lt;|&gt;/.test(src));
 }
-
 console.log('\n== wordmark ==');
 {
-  const src = fs.readFileSync(path.join(DIR, `${BANNER}-dark.svg`), 'utf8');
-  ok('renders the name', />BHAVYA</.test(src));
-  ok('names the role', /ETHICAL HACKER/i.test(src));
+  // The banner draws the name as a 5x7 dot matrix of binary digits. Rebuilding
+  // the expected grid here from an independent copy of the font is the only
+  // way to catch a glyph that silently renders blank.
+  const FONT = {
+    A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
+    B: ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
+    H: ['10001', '10001', '10001', '11111', '10001', '10001', '10001'],
+    V: ['10001', '10001', '10001', '10001', '10001', '10001', '01110'],
+    Y: ['10001', '10001', '01110', '00100', '00100', '00100', '00100'],
+  };
+  const NAME = 'BHAVYA';
+  const want = [];
+  for (let r = 0; r < 7; r++) {
+    let row = '';
+    for (const [i, ch] of [...NAME].entries()) {
+      row += FONT[ch][r] + (i < NAME.length - 1 ? '0' : '');
+    }
+    want.push(row);
+  }
+  ok('font covers every letter of the name', [...NAME].every((c) => FONT[c]),
+    NAME.split('').filter((c) => !FONT[c]).join(','));
 
-  const d = new JSDOM(src, { contentType: 'image/svg+xml' });
-  const vbW = num0(d.window.document.documentElement.getAttribute('viewBox').split(/\s+/)[2]);
-  const size = 62;
-  const spacing = 12;
-  const width = 'BHAVYA'.length * (size * 0.6) + ('BHAVYA'.length - 1) * spacing;
-  ok('wordmark fits its viewBox width', width < vbW, `text=${width.toFixed(0)} viewBox=${vbW}`);
-  ok('wordmark is centred', /text-anchor="middle"/.test(src));
-  ok('has a gradient sweep', /linearGradient/.test(src) && /animation:sweep/.test(src));
+  for (const theme of ['dark', 'light']) {
+    const src = fs.readFileSync(path.join(DIR, `${BANNER}-${theme}.svg`), 'utf8');
+    ok(`${theme}: names the role`, /ETHICAL HACKER/i.test(src));
+    const d = new JSDOM(src, { contentType: 'image/svg+xml' });
+    const doc = d.window.document;
+    const root = doc.documentElement;
+    const vb = (root.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+    const vbW = vb[2];
+    const vbH = vb[3];
 
-  // Gradient/clip ids are referenced by url(#id); a typo renders as no fill.
-  const ids = new Set([...src.matchAll(/<(?:linearGradient|clipPath)\s+id="([^"]+)"/g)].map((m) => m[1]));
-  const refs = [...src.matchAll(/url\(#([^)]+)\)/g)].map((m) => m[1]);
-  const dangling = refs.filter((r) => !ids.has(r));
-  ok('no dangling url(#id) references', dangling.length === 0, dangling.join(','));
-  ok('ids are unique', ids.size === [...src.matchAll(/id="/g)].length);
+    // The base matrix lives in <defs>; the visible copies are <use> elements.
+    const matrixG = doc.querySelector('#wmMatrix');
+    ok(`${theme}: matrix is defined once`, !!matrixG);
+    const rows = [...matrixG.querySelectorAll('text')].sort((a, b) => num0(a.getAttribute('y')) - num0(b.getAttribute('y')));
+    ok(`${theme}: matrix has 7 rows`, rows.length === 7, `rows=${rows.length}`);
 
-  // --- glitch construction ---
-  // A glitch needs at least three layers: base, chromatic split, slice tear.
-  ok('has a base gradient fill', /fill:url\(#wmGrad\)/.test(src));
-  ok('has red and cyan aberration layers', /\.red\{fill:var\(--red\)\}/.test(src) && /\.cyan\{fill:var\(--cyan\)\}/.test(src));
-  ok('aberration is animated', /@keyframes aberration/.test(src));
-  // Slice displacement is what makes the glitch read as datamosh rather than
-  // a blurry double-image, so there must be several independently-timed bands.
-  const sliceBands = (src.match(/<clipPath id="wmS\d+"><rect/g) || []).length;
-  ok('has 4+ slice bands', sliceBands >= 4, `bands=${sliceBands}`);
-  ok('slices are animated', /@keyframes slice/.test(src));
-  const delays = [...src.matchAll(/\.r(\d)\{animation-delay:([\d.]+)s\}/g)].map((m) => Number(m[2]));
-  ok('slices are desynchronised', new Set(delays).size === delays.length && delays.length > 1,
-    delays.join(','));
-  // Every delay must land inside the animation cycle, or a slice fires only on
-  // the first iteration and the banner looks static afterwards.
-  const cycle = num0((src.match(/@keyframes slice|animation:slice ([\d.]+)s/) || [])[1]);
-  ok('slice delays fall inside the cycle', cycle > 0 && delays.every((d) => d >= 0 && d < cycle),
-    `cycle=${cycle} delays=${delays.join(',')}`);
-  // Band positions must be ordered and non-overlapping or the tears stack.
-  const ys = [...src.matchAll(/<clipPath id="wmS\d+"><rect x="0" y="([\d.]+)"[^>]*height="([\d.]+)"/g)]
-    .map((m) => ({ y: num0(m[1]), h: num0(m[2]) }))
-    .sort((a, b) => a.y - b.y);
-  let overlap = 0;
-  for (let i = 1; i < ys.length; i++) if (ys[i].y < ys[i - 1].y + ys[i - 1].h) overlap++;
-  ok('slice bands do not overlap', overlap === 0, ys.map((b) => `${b.y}+${b.h}`).join(' '));
-  // The marquee needs copies spanning a full translation width, or the strip
-  // visibly runs out mid-scroll.
-  const stripCopies = (src.match(/class="f11" xml:space="preserve"/g) || []).length;
-  ok('binary marquee tiles for a seamless loop', stripCopies >= 3, `copies=${stripCopies}`);
-  ok('marquee is animated', /@keyframes marquee/.test(src));
-  ok('marquee is clipped to the banner', /wmStripClip/.test(src));
-  // The travel distance must equal the tile pitch or the loop jumps.
-  const travel = src.match(/@keyframes marquee\{0%\{transform:translateX\(0\)\}100%\{transform:translateX\((-?\d+(?:\.\d+)?)px\)\}\}/);
-  ok('marquee travel is set', !!travel && Number(travel[1]) !== 0, travel ? travel[1] : 'no keyframe');
-  // Three copies must sit at a constant pitch, and the animation must travel
-  // exactly one pitch, otherwise the strip jumps when the loop restarts.
-  const xs = [...src.matchAll(/<text x="(-?[\d.]+)" y="22"[^>]*class="f11"/g)].map((m) => num0(m[1]));
-  const pitch = xs.length >= 2 ? xs[1] - xs[0] : 0;
-  ok('marquee copies are evenly pitched', xs.length >= 3 && pitch > 0
-    && xs.every((x, i) => Math.abs(x - (xs[0] + i * pitch)) < 0.5), xs.join(','));
-  ok('marquee travel equals one pitch', !!travel && Math.abs(Math.abs(Number(travel[1])) - pitch) < 0.5,
-    `travel=${travel ? travel[1] : '?'} pitch=${pitch.toFixed(1)}`);
+    let mismatch = 0;
+    rows.forEach((r, i) => {
+      if (r.textContent !== want[i]) {
+        mismatch++;
+        console.log(`        row ${i}: got ${r.textContent} want ${want[i]}`);
+      }
+    });
+    ok(`${theme}: dot matrix spells BHAVYA`, mismatch === 0, `${mismatch} row(s) differ`);
 
-  // The binary row must be a real encoding of the name, not random digits.
-  const expected = [...'BHAVYA'].map((c) => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
-  ok('binary row encodes the name in 8-bit ASCII', src.includes(expected),
-    `looking for "${expected}"`);
-  ok('has falling binary columns', (src.match(/class="f11 rain"/g) || []).length >= 20);
+    // Every pixel must be a binary digit: the "binary" claim is literal.
+    const allDigits = rows.map((r) => r.textContent).join('');
+    ok(`${theme}: matrix is only 0s and 1s`, /^[01]+$/.test(allDigits));
+    ok(`${theme}: matrix has both lit and unlit pixels`, /1/.test(allDigits) && /0/.test(allDigits));
 
-  // The reduced-motion override has to reach the new classes too.
-  const rm = src.match(/@media\s*\(prefers-reduced-motion:reduce\)\{([^}]*)\}/);
-  ok('reduced-motion rule is a blanket override', !!rm && /\*\{/.test(rm[1]), rm ? rm[1] : 'absent');
+    // The name must be green, and every visible copy must be a <use>.
+    ok(`${theme}: digits are palette green`, /\.base\{color:var\(--green\)\}/.test(src));
+    ok(`${theme}: lit and unlit digits differ in opacity`, /\.bin0\{fill:currentColor;opacity:\./.test(src));
+    // The shared matrix lives in <defs> and is cloned by every <use>. A colour
+    // declared on that template would beat the inherited per-layer colour and
+    // silently turn the red/cyan aberration green.
+    ok(`${theme}: shared matrix declares no colour of its own`,
+      !/\.grid\s*\{[^}]*color\s*:/.test(src) && !/id="wmMatrix"[^>]*\scolor=/.test(src));
+    const uses = (src.match(/<use href="#wmMatrix"/g) || []).length;
+    ok(`${theme}: glitch layers reuse the matrix via <use>`, uses >= 6, `uses=${uses}`);
+
+    // Geometry: the grid must be horizontally centred, and letter-spacing (not
+    // an assumed cell width) is what sets the digit pitch.
+    const spacing = num0(rows[0].getAttribute('letter-spacing'));
+    const advance = 11 * 0.6;
+    const gridW = rows[0].textContent.length * advance
+      + (rows[0].textContent.length - 1) * spacing;
+    const x0 = num0(rows[0].getAttribute('x'));
+    ok(`${theme}: letter-spacing sets the pitch`, spacing > 0, `ls=${spacing}`);
+    ok(`${theme}: grid is horizontally centred`, Math.abs(x0 - (vbW - gridW) / 2) < 2,
+      `x0=${x0} expected=${((vbW - gridW) / 2).toFixed(1)} width=${gridW.toFixed(0)}`);
+    ok(`${theme}: grid fits inside the banner`, x0 >= 0 && x0 + gridW <= vbW,
+      `${x0.toFixed(0)}..${(x0 + gridW).toFixed(0)} of ${vbW}`);
+    ok(`${theme}: banner has a sane aspect`, vbW / vbH > 3.5 && vbW / vbH < 6,
+      `ratio=${(vbW / vbH).toFixed(2)}`);
+
+    // Rows must be evenly pitched or the glyphs shear. pitch > 0 matters: with
+    // every row sharing one baseline the spacing looks even but is not.
+    const ys = rows.map((r) => num0(r.getAttribute('y')));
+    const pitch = ys[1] - ys[0];
+    ok(`${theme}: rows are evenly pitched`, pitch > 0 && ys.every((y, i) => Math.abs(y - (ys[0] + i * pitch)) < 0.5),
+      `pitch=${pitch} ys=${ys.join(',')}`);
+
+    // Everything below the grid has to stay on the card.
+    const bits = doc.querySelector('.bits');
+    ok(`${theme}: ascii row is below the grid`, !!bits && num0(bits.getAttribute('y')) > ys[6],
+      bits ? num0(bits.getAttribute('y')) : 'absent');
+    ok(`${theme}: role line is the last element`,
+      num0(doc.querySelector('text[letter-spacing="3"]').getAttribute('y')) < vbH,
+      `y=${doc.querySelector('text[letter-spacing="3"]').getAttribute('y')} of ${vbH}`);
+
+    // Glitch construction: base, chromatic split, slice tears.
+    ok(`${theme}: has red and cyan aberration layers`,
+      /\.red-group\{color:var\(--red\)\}/.test(src) && /\.cyan-group\{color:var\(--cyan\)\}/.test(src));
+    ok(`${theme}: aberration is animated`, /@keyframes aberration/.test(src));
+    const sliceBands = (src.match(/<clipPath id="wmS\d+"><rect/g) || []).length;
+    ok(`${theme}: has 4+ slice bands`, sliceBands >= 4, `bands=${sliceBands}`);
+    ok(`${theme}: slices are animated`, /@keyframes slice/.test(src));
+    const delays = [...src.matchAll(/\.r(\d)\{animation-delay:([\d.]+)s\}/g)].map((m) => Number(m[2]));
+    ok(`${theme}: slices are desynchronised`, new Set(delays).size === delays.length && delays.length > 1,
+      delays.join(','));
+    const cycle = num0((src.match(/animation:slice ([\d.]+)s/) || [])[1]);
+    ok(`${theme}: slice delays fall inside the cycle`, cycle > 0 && delays.every((x) => x >= 0 && x < cycle),
+      `cycle=${cycle} delays=${delays.join(',')}`);
+    const bandYs = [...src.matchAll(/<clipPath id="wmS\d+"><rect x="0" y="([\d.]+)"[^>]*height="([\d.]+)"/g)]
+      .map((m) => ({ y: num0(m[1]), h: num0(m[2]) }))
+      .sort((a, b) => a.y - b.y);
+    let overlap = 0;
+    for (let i = 1; i < bandYs.length; i++) if (bandYs[i].y < bandYs[i - 1].y + bandYs[i - 1].h) overlap++;
+    ok(`${theme}: slice bands do not overlap`, overlap === 0, bandYs.map((b) => `${b.y}+${b.h}`).join(' '));
+    ok(`${theme}: slice bands sit on the grid`, bandYs.every((b) => b.y >= ys[0] - 20 && b.y < ys[6]),
+      bandYs.map((b) => b.y).join(','));
+
+    // ids and references must resolve, and stay unique.
+    const ids = new Set([...src.matchAll(/<(?:linearGradient|clipPath)\s+id="([^"]+)"/g)].map((m) => m[1]));
+    ids.add('wmMatrix');
+    const refs = [...src.matchAll(/(?:url\(#|href="#)([^)"]+)/g)].map((m) => m[1]);
+    const dangling = refs.filter((r) => !ids.has(r));
+    ok(`${theme}: no dangling references`, dangling.length === 0, dangling.join(','));
+    ok(`${theme}: ids are unique`, ids.size === [...src.matchAll(/\sid="/g)].length,
+      `declared=${ids.size} total=${[...src.matchAll(/\sid="/g)].length}`);
+
+    // Marquee: tiled and clipped, with travel equal to the tile pitch.
+    ok(`${theme}: marquee is animated`, /@keyframes marquee/.test(src));
+    ok(`${theme}: marquee is clipped`, /wmStripClip/.test(src));
+    const travel = (src.match(/@keyframes marquee\{0%\{transform:translateX\(0\)\}100%\{transform:translateX\((-?[\d.]+)px\)\}\}/) || [])[1];
+    const xs = [...src.matchAll(/<text x="(-?[\d.]+)" y="22"[^>]*class="f11"/g)].map((m) => num0(m[1]));
+    const stripPitch = xs.length >= 2 ? xs[1] - xs[0] : 0;
+    ok(`${theme}: marquee has 3 tiled copies`, xs.length >= 3, `copies=${xs.length}`);
+    ok(`${theme}: marquee travel equals tile pitch`,
+      !!travel && Math.abs(Math.abs(Number(travel)) - stripPitch) < 0.5,
+      `travel=${travel} pitch=${stripPitch.toFixed(1)}`);
+
+    // The ASCII row must still decode to the name.
+    const expected = [...NAME].map((c) => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+    ok(`${theme}: ascii row encodes BHAVYA`, src.includes(expected));
+    ok(`${theme}: has falling binary columns`, (src.match(/class="f11 rain"/g) || []).length >= 20);
+
+    // Reduced motion must reach every layer.
+    const rm = src.match(/@media\s*\(prefers-reduced-motion:reduce\)\{([^}]*)\}/);
+    ok(`${theme}: reduced-motion is a blanket override`, !!rm && /\*\{/.test(rm[1]), rm ? rm[1] : 'absent');
+  }
+
+  // The binary claim means what it says: no harsh hex anywhere in the banner.
+  for (const theme of ['dark', 'light']) {
+    const src = fs.readFileSync(path.join(DIR, `${BANNER}-${theme}.svg`), 'utf8');
+    const hexes = [...src.matchAll(/#[0-9a-fA-F]{6}/g)].map((m) => m[0].toUpperCase());
+    const harsh = hexes.filter((h) => ['#FF0000', '#00FF00', '#FF00FF', '#FFFF00'].includes(h));
+    ok(`${theme}: banner avoids harsh colours`, harsh.length === 0, harsh.join(','));
+  }
 }
 
 console.log('\n== forensics dump ==');

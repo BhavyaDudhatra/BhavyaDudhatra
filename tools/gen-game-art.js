@@ -74,7 +74,9 @@ function styleBlock(p) {
 
 // `w`/`h` are overridable so the banner can use a wider aspect than the cards.
 function svgDoc(p, label, body, defs = '', w = W, h = H) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${label}">
+  // overflow:hidden is stated explicitly rather than relying on the UA default,
+  // because the falling-rain layer is drawn off-canvas and depends on clipping.
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" overflow="hidden" role="img" aria-label="${label}">
 ${styleBlock(p)}
 <rect x="0" y="0" width="${w}" height="${h}" rx="10" class="panel"/>
 <rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="10" fill="none" class="edge"/>
@@ -119,18 +121,23 @@ const GLYPH_H = 7;
 
 function wordmark(p) {
   const r = rng(0x5eed00);
-  const BW = 1040;
-  const BH = 250;
+  const BW = 1120;
+  const BH = 264;
   const name = 'BHAVYA';
   name.split('').forEach((ch) => {
     if (!BIN_FONT[ch]) throw new Error(`BIN_FONT has no glyph for "${ch}"`);
   });
 
-  const cell = 12; // pitch per binary digit
-  const lh = 23; // row pitch
-  const fontSize = 20;
+  // Digit pitch is set with letter-spacing, not by assuming a cell width: the
+  // real advance for this font is ~0.6em, so a nominal cell size silently
+  // throws the whole grid off-centre.
+  const fontSize = 11;
+  const advance = charW(fontSize);
+  const pitch = 20; // horizontal distance between digit centres
+  const letterSpacing = pitch - advance;
+  const lh = 20; // row pitch, matched to `pitch` so cells read as square
   const cols = name.length * GLYPH_W + (name.length - 1); // +1 gap between glyphs
-  const gridW = cols * cell;
+  const gridW = cols * advance + (cols - 1) * letterSpacing;
   const x0 = Math.round((BW - gridW) / 2);
   const top = 50; // first row baseline
   const gridBottom = top + (GLYPH_H - 1) * lh;
@@ -187,15 +194,16 @@ function wordmark(p) {
   const roleY = ruleY + 20;
 
   // Slice bands for the displacement glitch: thin horizontal cuts through the
-  // glyphs that jump sideways for a frame. `at` is when the tear fires within
-  // the 5s cycle, and they are deliberately uneven — synchronised slices look
-  // mechanical rather than like a real signal break.
+  // digit rows that jump sideways for a frame. `at` is when the tear fires
+  // within the 5s cycle, and they are deliberately uneven — synchronised
+  // slices look mechanical rather than like a real signal break.
+  // Positions are derived from the row pitch so a layout change moves them.
   const bands = [
-    { y: baseline - 46, h: 9, at: 0.8 },
-    { y: baseline - 30, h: 7, at: 3.4 },
-    { y: baseline - 18, h: 11, at: 2.8 },
-    { y: baseline - 6, h: 8, at: 4.6 },
-  ];
+    { row: 0, h: 9, at: 0.8 },
+    { row: 2, h: 7, at: 3.4 },
+    { row: 4, h: 11, at: 2.8 },
+    { row: 6, h: 8, at: 4.6 },
+  ].map((b) => ({ ...b, y: top + b.row * lh - 8 }));
   const slices = bands
     .map(
       (b, i) =>
@@ -204,12 +212,20 @@ function wordmark(p) {
     .join('\n');
   const sliceDelays = bands.map((b, i) => `.r${i}{animation-delay:${b.at}s}`).join('');
 
+  // The matrix is defined once in <defs> and instanced with <use>. Each glitch
+  // layer recolours it by setting "color", which the digit tspans pick up via
+  // fill:currentColor. Duplicating the markup per layer cost 60KB+ per file.
+  // One pass only: a second .replace() would rescan the markup it just inserted
+  // and match the "1" inside class="bin1", producing unclosed tags.
+  const matrixRow = (txt, i) =>
+    `<text x="${x0}" y="${top + i * lh}" class="f11" letter-spacing="${letterSpacing.toFixed(2)}" xml:space="preserve">${txt.replace(
+      /[01]/g,
+      (d) => `<tspan class="bin${d}">${d}</tspan>`
+    )}</text>`;
+
+  const matrix = rowStrings.map(matrixRow).join('\n');
+
   const defs = `
-<linearGradient id="wmGrad" x1="0" y1="0" x2="1" y2="0">
-  <stop offset="0%" stop-color="${p.blue}"/>
-  <stop offset="45%" stop-color="${p.cyan}"/>
-  <stop offset="100%" stop-color="${p.blue}"/>
-</linearGradient>
 <linearGradient id="wmSweep" x1="0" y1="0" x2="1" y2="0">
   <stop offset="0%" stop-color="${p.bg}" stop-opacity="0"/>
   <stop offset="50%" stop-color="${p.fg}" stop-opacity="0.7"/>
@@ -217,37 +233,8 @@ function wordmark(p) {
 </linearGradient>
 <clipPath id="wmClip"><rect x="0" y="${top - lh}" width="${BW}" height="${gridH + lh}" /></clipPath>
 <clipPath id="wmStripClip"><rect x="0" y="8" width="${BW}" height="24"/></clipPath>
+<g id="wmMatrix" class="grid">${matrix}</g>
 ${slices}`;
-
-  const nameText = (cls, extra = '') =>
-    `<text x="${cx}" y="${baseline}" text-anchor="middle" font-size="${size}" font-weight="700" letter-spacing="12"${extra ? ' ' + extra : ''}${cls ? ` class="${cls}"` : ''}>${name}</text>`;
-
-  const matrixBase = rowStrings
-    .map(
-      (txt, i) =>
-        `<text x="${x0}" y="${top + i * lh}" class="f11" xml:space="preserve">${txt
-          .replace(/0/g, '<tspan class="bin0">0</tspan>')
-          .replace(/1/g, '<tspan class="bin1">1</tspan>')}</text>`
-    )
-    .join('\n');
-
-  const matrixGlitch = rowStrings
-    .map(
-      (txt, i) =>
-        `<text x="${x0}" y="${top + i * lh}" class="f11 ab-layer" xml:space="preserve">${txt
-          .replace(/0/g, '<tspan class="bin0">0</tspan>')
-          .replace(/1/g, '<tspan class="bin1">1</tspan>')}</text>`
-    )
-    .join('\n');
-
-  const matrixSlice = rowStrings
-    .map(
-      (txt, i) =>
-        `<text x="${x0}" y="${top + i * lh}" class="f11 sl-layer" xml:space="preserve">${txt
-          .replace(/0/g, '<tspan class="bin0">0</tspan>')
-          .replace(/1/g, '<tspan class="bin1">1</tspan>')}</text>`
-    )
-    .join('\n');
 
   const body = `
 <g style="opacity:.16">${rain}</g>
@@ -259,16 +246,16 @@ ${slices}`;
   </g>
 </g>
 <g class="word">
-  ${matrixBase}
+  <use href="#wmMatrix" class="layer base"/>
   <g clip-path="url(#wmClip)">
     <rect x="0" y="${top - lh}" width="150" height="${gridH + lh}" style="fill:url(#wmSweep)" class="sweep"/>
   </g>
-  <g class="ab red-group">${matrixGlitch}</g>
-  <g class="ab cyan-group">${matrixGlitch}</g>
+  <g class="ab red-group"><use href="#wmMatrix" class="layer"/></g>
+  <g class="ab cyan-group"><use href="#wmMatrix" class="layer"/></g>
   ${bands
     .map(
       (b, i) =>
-        `<g clip-path="url(#wmS${i})"><g class="sl r${i}">${matrixSlice}</g></g>`
+        `<g clip-path="url(#wmS${i})"><g class="sl r${i}"><use href="#wmMatrix" class="layer"/></g></g>`
     )
     .join('\n')}
 </g>
@@ -278,18 +265,21 @@ ${slices}`;
 <style>
   .strip{fill:var(--dim)}
   .rain{fill:var(--cyan)}
-  .bin1{fill:var(--green)}
-  .bin0{fill:var(--green);opacity:.28}
+  /* Digits take their colour from the inherited "color" property, which each
+     use-instance sets, so one matrix definition serves every glitch colour.
+     Note: no raw angle brackets are allowed in here; style content is XML.
+     The shared matrix must NOT declare a color itself: a declaration on the
+     cloned group would outrank the inherited color and every layer, including
+     the red/cyan aberration, would render green. */
+  .bin1{fill:currentColor}
+  .bin0{fill:currentColor;opacity:.28}
+  .base{color:var(--green)}
   .sweep{animation:sweep 7s ease-in-out infinite}
   .ab{opacity:0;mix-blend-mode:screen;animation:aberration 5s steps(1) infinite}
-  .ab-layer .bin1,.ab-layer .bin0{opacity:0}
-  .red-group .ab-layer .bin1{fill:var(--red)}
-  .red-group .ab-layer .bin0{fill:var(--red)}
-  .cyan-group .ab-layer .bin1{fill:var(--cyan)}
-  .cyan-group .ab-layer .bin0{fill:var(--cyan)}
+  .red-group{color:var(--red)}
+  .cyan-group{color:var(--cyan)}
   .sl{opacity:0;mix-blend-mode:screen;animation:slice 5s steps(1) infinite}
-  .sl-layer .bin1{fill:var(--green)}
-  .sl-layer .bin0{fill:var(--green);opacity:.28}
+  .sl .layer{color:var(--fg)}
   ${sliceDelays}
   .bits{fill:var(--green);opacity:.9;animation:bits 5s steps(1) infinite}
   @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(${stripW}px)}}

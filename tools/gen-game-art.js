@@ -72,15 +72,77 @@ function styleBlock(p) {
 </style>`;
 }
 
-function svgDoc(p, label, body, defs = '') {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${label}">
+// `w`/`h` are overridable so the banner can use a wider aspect than the cards.
+function svgDoc(p, label, body, defs = '', w = W, h = H) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${label}">
 ${styleBlock(p)}
-<rect x="0" y="0" width="${W}" height="${H}" rx="10" class="panel"/>
-<rect x="0.5" y="0.5" width="${W - 1}" height="${H - 1}" rx="10" fill="none" class="edge"/>
+<rect x="0" y="0" width="${w}" height="${h}" rx="10" class="panel"/>
+<rect x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="10" fill="none" class="edge"/>
 <defs>${defs}</defs>
 ${body}
 </svg>
 `;
+}
+
+// Monospace advance width, used to place text that follows a known string.
+const charW = (fontSize) => fontSize * 0.6;
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/* ---------- 0. name banner ---------- */
+/*
+ * A wordmark rather than ASCII art: SVG text scales cleanly on any viewport,
+ * can be tinted per theme, and can carry a slow gradient sweep. The ASCII block
+ * it replaced was fixed-width and broke on narrow screens.
+ */
+
+function wordmark(p) {
+  const BW = 760;
+  const BH = 150;
+  const name = 'BHAVYA';
+  const size = 66;
+  const cy = 82;
+
+  const gradId = 'wmGrad';
+  const sweep = `
+<linearGradient id="${gradId}" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%" stop-color="${p.blue}"/>
+  <stop offset="45%" stop-color="${p.cyan}"/>
+  <stop offset="100%" stop-color="${p.blue}"/>
+</linearGradient>
+<linearGradient id="wmSweep" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%" stop-color="${p.bg}" stop-opacity="0"/>
+  <stop offset="50%" stop-color="${p.fg}" stop-opacity="0.85"/>
+  <stop offset="100%" stop-color="${p.bg}" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="wmClip"><text x="${BW / 2}" y="${cy}" text-anchor="middle" font-size="${size}" letter-spacing="10" font-weight="700">${name}</text></clipPath>`;
+
+  const body = `
+<g>
+  <text x="${BW / 2}" y="${cy}" text-anchor="middle" font-size="${size}" font-weight="700" letter-spacing="10" style="fill:url(#${gradId})">${name}</text>
+  <g clip-path="url(#wmClip)">
+    <rect x="0" y="0" width="160" height="${BH}" style="fill:url(#wmSweep)" class="sweep"/>
+  </g>
+  <text x="${BW / 2}" y="${cy}" text-anchor="middle" font-size="${size}" font-weight="700" letter-spacing="10" class="glitch">${name}</text>
+</g>
+<line x1="${BW / 2 - 150}" y1="${cy + 22}" x2="${BW / 2 + 150}" y2="${cy + 22}" class="edge"/>
+<text x="${BW / 2}" y="${cy + 44}" text-anchor="middle" class="dim f12" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
+<style>
+  .sweep{animation:sweep 6s ease-in-out infinite}
+  .glitch{fill:var(--cyan);opacity:0;mix-blend-mode:screen;animation:glitch 7s steps(1) infinite}
+  @keyframes sweep{0%{transform:translateX(0)}50%{transform:translateX(${BW + 160}px)}100%{transform:translateX(0)}}
+  @keyframes glitch{
+    0%,86%{opacity:0;transform:translate(0,0)}
+    87%{opacity:.5;transform:translate(-2px,1px)}
+    88%{opacity:0}
+    89%{opacity:.45;transform:translate(2px,-1px)}
+    90%,100%{opacity:0;transform:translate(0,0)}
+  }
+</style>`;
+
+  return svgDoc(p, 'BHAVYA — ethical hacker and security researcher', body, sweep, BW, BH);
 }
 
 /* ---------- 1. matrix rain ---------- */
@@ -179,9 +241,9 @@ function vulnGrid(p) {
   }
 
   // Mine counts are capped at 3 for the legend; higher counts roll over to 3 so
-// the visual weight stays legible on a small card.
-const numColor = { 1: 'bl', 2: 'gr', 3: 'rd' };
-const cap = (n) => (n > 3 ? 3 : n);
+  // the visual weight stays legible on a small card.
+  const numColor = { 1: 'bl', 2: 'gr', 3: 'rd' };
+  const cap = (n) => (n > 3 ? 3 : n);
 
   let cells = '';
   order.forEach((idx) => {
@@ -367,13 +429,281 @@ ${packets}
   return svgDoc(p, 'Network diagram with packets passing or being blocked by a WAF', body);
 }
 
+/* ---------- 5. digital forensics: memory dump + artifact carving ---------- */
+
+/*
+ * A hex dump of a process memory region. The interesting bytes are the ones
+ * holding the hidden process name, so the scene is built around a scanner
+ * sweeping for a signature and then carving the matching string out.
+ */
+
+function forensicsScene(p) {
+  const r = rng(0x5eed05);
+  const hex = (n) => n.toString(16).toUpperCase().padStart(2, '0');
+
+  // Deterministic-looking but meaningless bytes; one planted string is the
+  // artefact the scan is meant to find.
+  const plant = 'mimikatz.exe';
+  const rows = 9;
+  // 12 bytes per row keeps the hex column and the ASCII gutter both inside the
+  // 440px card; 14 pushed the ASCII column ~35px past the right edge.
+  const bytesPerRow = 12;
+  const y0 = 44;
+  const lh = 14;
+  const xOff = 14;
+  const xHex = 74;
+  const xAsc = 74 + bytesPerRow * 3 * charW(11) + 10;
+
+  let dump = '';
+  let found = null;
+  for (let row = 0; row < rows; row++) {
+    const cells = [];
+    let ascii = '';
+    for (let b = 0; b < bytesPerRow; b++) {
+      // Plant the artefact on a specific row so the highlight lands mid-dump.
+      if (row === 3 && b >= 2 && b < 2 + plant.length) {
+        cells.push(plant.charCodeAt(b - 2));
+      } else {
+        cells.push(ri(r, 0, 255));
+      }
+      ascii += b === 2 + Math.floor(plant.length / 2) ? '|' : '.';
+    }
+    const off = 0x7ffb0000 + row * bytesPerRow;
+    const hexStr = cells.map(hex).join(' ');
+    const delay = (row * 0.35).toFixed(2);
+    dump +=
+      `<g style="animation:dumpIn 18s linear infinite both;animation-delay:${delay}s">` +
+      `<text x="${xOff}" y="${y0 + row * lh}" class="dim f11">${off.toString(16).toUpperCase().padStart(8, '0')}</text>` +
+      `<text x="${xHex}" y="${y0 + row * lh}" class="fg f11" xml:space="preserve">${hexStr}</text>` +
+      `<text x="${xAsc}" y="${y0 + row * lh}" class="dim f11">${ascii}</text>` +
+      `</g>`;
+    if (row === 3) found = off;
+  }
+
+  const body = `
+<text x="${W / 2}" y="20" text-anchor="middle" class="dim f11">vol.py -f memory.raw --dump --pid 4821</text>
+${dump}
+<line x1="14" y1="180" x2="${W - 14}" y2="180" class="edge"/>
+<g style="animation:carve 18s linear infinite both">
+<text x="14" y="199" class="dim f11">signature</text>
+<text x="82" y="199" class="rd f11">MZ header + PE stub at 0x${found.toString(16).toUpperCase()}</text>
+<text x="14" y="217" class="dim f11">carved</text>
+<text x="82" y="217" class="gr f11">mimikatz.exe  (11 bytes)</text>
+<text x="14" y="235" class="dim f11">sha256</text>
+<text x="82" y="235" class="yl f11">9f2a...c41b  verified</text>
+</g>
+<rect x="${xHex - 3}" y="${y0 + 3 * lh - 9}" width="${(2 + plant.length) * 3 * charW(11) - 3}" height="12" rx="2" style="fill:var(--red-dim)" class="hl"/>
+<style>
+  @keyframes dumpIn{
+    0%{opacity:0}2%{opacity:1}92%{opacity:1}100%{opacity:0}
+  }
+  @keyframes carve{
+    0%,8%{opacity:0}14%,92%{opacity:1}100%{opacity:0}
+  }
+  .hl{animation:hlpulse 18s linear infinite}
+  @keyframes hlpulse{0%,12%{opacity:0}16%,92%{opacity:1}100%{opacity:0}}
+</style>`;
+
+  return svgDoc(p, 'Hex dump of process memory with an artifact carved out', body);
+}
+
+/* ---------- 6. ethical hacking: web app assessment ---------- */
+
+/*
+ * Shows the assessment pipeline rather than a single tool: a parameter is
+ * probed, a payload is proven, and the finding is graded. The lab framing and
+ * the "authorised" banner keep it clearly defensive.
+ */
+
+function webAssessScene(p) {
+  const steps = [
+    ['dim', 'target', 'lab.local  (authorised)'],
+    ['dim', 'surface', '12 routes · 3 forms'],
+    ['yl', 'probe', "id=1' OR '1'='1"],
+    ['gr', 'confirmed', 'SQLi · parameter id'],
+    ['rd', 'severity', 'HIGH  cvss 9.8'],
+  ];
+
+  const y0 = 46;
+  const lh = 21;
+  let rows = '';
+  steps.forEach(([, tag, val], i) => {
+    const cls = steps[i][0];
+    const delay = (i * 0.9).toFixed(2);
+    rows +=
+      `<g style="animation:stepIn 16s linear infinite both;animation-delay:${delay}s">` +
+      `<text x="14" y="${y0 + i * lh}" class="dim f11">${esc(tag)}</text>` +
+      `<text x="86" y="${y0 + i * lh}" class="${cls} f12">${esc(val)}</text>` +
+      `</g>`;
+  });
+
+  // Severity meter fills as the finding is graded.
+  const meterW = 200;
+  rows +=
+    `<g style="animation:stepIn 16s linear infinite both;animation-delay:3.6s">` +
+    `<rect x="14" y="${y0 + 5 * lh - 11}" width="${meterW}" height="8" rx="4" style="fill:var(--panel)" class="edge"/>` +
+    `<rect x="14" y="${y0 + 5 * lh - 11}" width="0" height="8" rx="4" class="rd meter"/>` +
+    `</g>`;
+
+  const body = `
+<text x="${W / 2}" y="20" text-anchor="middle" class="dim f11">webapp --assess --scope authorised</text>
+${rows}
+<g style="animation:stepIn 16s linear infinite both;animation-delay:4.5s">
+<line x1="14" y1="196" x2="${W - 14}" y2="196" class="edge"/>
+<text x="14" y="216" class="dim f11">remediation</text>
+<text x="86" y="216" class="fg f11">parameterised queries</text>
+<text x="14" y="234" class="dim f11">reported</text>
+<text x="86" y="234" class="gr f11">finding-001.md  ·  triage: open</text>
+</g>
+<style>
+  @keyframes stepIn{0%{opacity:0;transform:translateX(-6px)}3%{opacity:1;transform:translateX(0)}92%{opacity:1}100%{opacity:0}}
+  .meter{animation:meterFill 16s linear infinite;animation-delay:3.6s}
+  @keyframes meterFill{0%,22%{width:0}40%,92%{width:${meterW}px}100%{width:0}}
+</style>`;
+
+  return svgDoc(p, 'Web application assessment showing a confirmed SQL injection finding', body);
+}
+
+/* ---------- 7. incident response timeline ---------- */
+
+/*
+ * A correlated event timeline. Each event lights up in sequence, the connecting
+ * line draws itself, and the summary only appears once the whole chain is known.
+ */
+
+function irTimelineScene(p) {
+  const r = rng(0x5eed07);
+  const events = [
+    ['09:14', 'brute force', 'rd'],
+    ['09:41', 'account lockout', 'yl'],
+    ['10:02', 'lateral movement', 'rd'],
+    ['10:38', 'data staging', 'rd'],
+    ['11:20', 'host isolated', 'gr'],
+  ];
+
+  const y = 92;
+  // Labels are centred on their node, so the end nodes need extra inset for the
+  // text half-width or the longest label runs off the card.
+  const inset = 62;
+  const x0 = inset;
+  const x1 = W - inset;
+  const step = (x1 - x0) / (events.length - 1);
+  const trackLen = W - 68;
+
+  let nodes = '';
+  events.forEach(([time, label, cls], i) => {
+    const x = x0 + i * step;
+    const delay = (i * 1.1).toFixed(2);
+    const above = i % 2 === 0;
+    const ly = above ? y - 34 : y + 42;
+    nodes +=
+      `<g style="animation:pop 20s linear infinite both;animation-delay:${delay}s">` +
+      `<circle cx="${x}" cy="${y}" r="5" class="${cls}"/>` +
+      `<circle cx="${x}" cy="${y}" r="5" style="fill:none" class="${cls} ring"/>` +
+      `<text x="${x}" y="${ly}" text-anchor="middle" class="${cls} f11">${time}</text>` +
+      `<text x="${x}" y="${ly + 14}" text-anchor="middle" class="fg f10">${label}</text>` +
+      `</g>`;
+  });
+
+  const body = `
+<text x="${W / 2}" y="20" text-anchor="middle" class="dim f11">incident #4471 -- correlate</text>
+<line x1="34" y1="${y}" x2="${W - 34}" y2="${y}" class="edge track"/>
+<line x1="34" y1="${y}" x2="34" y2="${y}" class="gr draw"/>
+${nodes}
+<g style="animation:sum 20s linear infinite both;animation-delay:6s">
+<line x1="14" y1="196" x2="${W - 14}" y2="196" class="edge"/>
+<text x="14" y="216" class="dim f11">chain</text>
+<text x="86" y="216" class="fg f11">credential abuse to exfil attempt</text>
+<text x="14" y="234" class="dim f11">status</text>
+<text x="86" y="234" class="gr f11">contained  ·  rotating credentials</text>
+</g>
+<style>
+  .ring{animation:ring 20s ease-out infinite;transform-box:fill-box;transform-origin:center}
+  .draw{stroke-dasharray:${trackLen};stroke-dashoffset:${trackLen};animation:draw 20s linear infinite}
+  @keyframes pop{0%{opacity:0;transform:scale(0.2)}2%{opacity:1;transform:scale(1)}94%{opacity:1}100%{opacity:0}}
+  @keyframes ring{0%{opacity:.8;transform:scale(1)}2%,100%{opacity:0;transform:scale(2.4)}}
+  @keyframes draw{0%{stroke-dashoffset:${trackLen}}30%{stroke-dashoffset:0}94%{stroke-dashoffset:0}100%{stroke-dashoffset:${trackLen}}}
+  @keyframes sum{0%,29%{opacity:0}34%,94%{opacity:1}100%{opacity:0}}
+</style>`;
+
+  return svgDoc(p, 'Incident response timeline correlating a suspected breach', body);
+}
+
+/* ---------- 8. TLS handshake ---------- */
+
+/*
+ * Client and server exchange a handshake, then the session turns encrypted.
+ * The lock colour transition is the payload of the animation.
+ */
+
+function tlsScene(p) {
+  const steps = [
+    ['ClientHello', 'right', 'bl'],
+    ['ServerHello', 'left', 'bl'],
+    ['Certificate', 'left', 'yl'],
+    ['Key exchange', 'right', 'cy'],
+    ['Finished', 'left', 'gr'],
+  ];
+
+  // Messages stack above the endpoints so the two never overlap.
+  const y = 142;
+  const leftX = 62;
+  const rightX = W - 62;
+  const top = 42;
+  const gap = 17;
+
+  let msgs = '';
+  steps.forEach(([label, dir, cls], i) => {
+    const my = top + i * gap;
+    const fromX = dir === 'right' ? leftX + 22 : rightX - 22;
+    const toX = dir === 'right' ? rightX - 22 : leftX + 22;
+    const tx = dir === 'right' ? fromX + 8 : fromX - 8;
+    const dur = (1.1 + i * 0.15).toFixed(2);
+    const del = (i * 0.85).toFixed(2);
+    msgs +=
+      `<g class="msg" style="animation:msg 15s linear infinite both;animation-delay:${del}s">` +
+      `<line x1="${fromX}" y1="${my}" x2="${toX}" y2="${my}" class="${cls} edge"/>` +
+      `<text x="${tx}" y="${my - 3}" class="${cls} f10">${label}</text>` +
+      `</g>`;
+  });
+
+  const body = `
+<text x="${W / 2}" y="20" text-anchor="middle" class="dim f11">openssl s_client -tls1_3 -connect lab.local:443</text>
+${msgs}
+<circle cx="${leftX}" cy="${y}" r="18" style="fill:var(--panel)" class="edge"/>
+<text x="${leftX}" y="${y + 4}" text-anchor="middle" class="fg f10">you</text>
+<circle cx="${rightX}" cy="${y}" r="18" style="fill:var(--panel)" class="edge"/>
+<text x="${rightX}" y="${y + 4}" text-anchor="middle" class="fg f10">srv</text>
+<text x="${W / 2}" y="${y + 4}" text-anchor="middle" class="lock f12">locked</text>
+<text x="${W / 2}" y="${y + 4}" text-anchor="middle" class="lockdone f11">TLS_AES_256_GCM</text>
+<text x="${W / 2}" y="222" text-anchor="middle" class="dim f11">1-RTT handshake  ·  cert verified  ·  no downgrade</text>
+<style>
+  .msg{opacity:0}
+  .lock{fill:var(--yellow)}
+  .lockdone{fill:var(--green);opacity:0}
+  @keyframes msg{0%{opacity:0}3%{opacity:1}26%{opacity:1}30%,100%{opacity:0}}
+  /* The lock resolves only once every handshake step has been exchanged. */
+  .lock{animation:lockColor 15s steps(1) infinite}
+  .lockdone{animation:doneColor 15s steps(1) infinite}
+  @keyframes lockColor{0%,29%{fill:var(--yellow)}30%,100%{fill:var(--green)}}
+  @keyframes doneColor{0%,29%{opacity:0}30%,100%{opacity:1}}
+</style>`;
+
+  return svgDoc(p, 'TLS 1.3 handshake between a client and server', body);
+}
+
 /* ---------- write everything ---------- */
 
 const scenes = [
+  ['wordmark', wordmark],
   ['matrix-rain', matrixRain],
   ['vuln-grid', vulnGrid],
   ['scan-terminal', scanTerminal],
   ['firewall-watch', firewallScene],
+  ['forensics-dump', forensicsScene],
+  ['web-assess', webAssessScene],
+  ['ir-timeline', irTimelineScene],
+  ['tls-handshake', tlsScene],
 ];
 
 const written = [];

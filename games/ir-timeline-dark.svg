@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 260" width="440" height="260" role="img" aria-label="Incident response timeline correlating a suspected breach">
+
+<style>
+  :root{
+    --panel:#161b22;--border:#30363d;--fg:#c9d1d9;--dim:#8b949e;
+    --green:#3fb950;--green-dim:#1a3f2b;--red:#f85149;--red-dim:#3d1a1a;
+    --yellow:#d29922;--blue:#58a6ff;--cyan:#39c5cf;--bg:#0d1117;
+  }
+  text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .panel{fill:var(--panel)}
+  .edge{stroke:var(--border);stroke-width:1}
+  .fg{fill:var(--fg)} .dim{fill:var(--dim)} .gr{fill:var(--green)}
+  .rd{fill:var(--red)} .yl{fill:var(--yellow)} .bl{fill:var(--blue)} .cy{fill:var(--cyan)}
+  .f10{font-size:10px} .f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+<rect x="0" y="0" width="440" height="260" rx="10" class="panel"/>
+<rect x="0.5" y="0.5" width="439" height="259" rx="10" fill="none" class="edge"/>
+<defs></defs>
+
+<text x="220" y="20" text-anchor="middle" class="dim f11">incident #4471 -- correlate</text>
+<line x1="34" y1="92" x2="406" y2="92" class="edge track"/>
+<line x1="34" y1="92" x2="34" y2="92" class="gr draw"/>
+<g style="animation:pop 20s linear infinite both;animation-delay:0.00s"><circle cx="62" cy="92" r="5" class="rd"/><circle cx="62" cy="92" r="5" style="fill:none" class="rd ring"/><text x="62" y="58" text-anchor="middle" class="rd f11">09:14</text><text x="62" y="72" text-anchor="middle" class="fg f10">brute force</text></g><g style="animation:pop 20s linear infinite both;animation-delay:1.10s"><circle cx="141" cy="92" r="5" class="yl"/><circle cx="141" cy="92" r="5" style="fill:none" class="yl ring"/><text x="141" y="134" text-anchor="middle" class="yl f11">09:41</text><text x="141" y="148" text-anchor="middle" class="fg f10">account lockout</text></g><g style="animation:pop 20s linear infinite both;animation-delay:2.20s"><circle cx="220" cy="92" r="5" class="rd"/><circle cx="220" cy="92" r="5" style="fill:none" class="rd ring"/><text x="220" y="58" text-anchor="middle" class="rd f11">10:02</text><text x="220" y="72" text-anchor="middle" class="fg f10">lateral movement</text></g><g style="animation:pop 20s linear infinite both;animation-delay:3.30s"><circle cx="299" cy="92" r="5" class="rd"/><circle cx="299" cy="92" r="5" style="fill:none" class="rd ring"/><text x="299" y="134" text-anchor="middle" class="rd f11">10:38</text><text x="299" y="148" text-anchor="middle" class="fg f10">data staging</text></g><g style="animation:pop 20s linear infinite both;animation-delay:4.40s"><circle cx="378" cy="92" r="5" class="gr"/><circle cx="378" cy="92" r="5" style="fill:none" class="gr ring"/><text x="378" y="58" text-anchor="middle" class="gr f11">11:20</text><text x="378" y="72" text-anchor="middle" class="fg f10">host isolated</text></g>
+<g style="animation:sum 20s linear infinite both;animation-delay:6s">
+<line x1="14" y1="196" x2="426" y2="196" class="edge"/>
+<text x="14" y="216" class="dim f11">chain</text>
+<text x="86" y="216" class="fg f11">credential abuse to exfil attempt</text>
+<text x="14" y="234" class="dim f11">status</text>
+<text x="86" y="234" class="gr f11">contained  ·  rotating credentials</text>
+</g>
+<style>
+  .ring{animation:ring 20s ease-out infinite;transform-box:fill-box;transform-origin:center}
+  .draw{stroke-dasharray:372;stroke-dashoffset:372;animation:draw 20s linear infinite}
+  @keyframes pop{0%{opacity:0;transform:scale(0.2)}2%{opacity:1;transform:scale(1)}94%{opacity:1}100%{opacity:0}}
+  @keyframes ring{0%{opacity:.8;transform:scale(1)}2%,100%{opacity:0;transform:scale(2.4)}}
+  @keyframes draw{0%{stroke-dashoffset:372}30%{stroke-dashoffset:0}94%{stroke-dashoffset:0}100%{stroke-dashoffset:372}}
+  @keyframes sum{0%,29%{opacity:0}34%,94%{opacity:1}100%{opacity:0}}
+</style>
+</svg>

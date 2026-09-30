@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 150" width="760" height="150" role="img" aria-label="BHAVYA — ethical hacker and security researcher">
+
+<style>
+  :root{
+    --panel:#f6f8fa;--border:#d0d7de;--fg:#24292f;--dim:#59636e;
+    --green:#1a7f37;--green-dim:#dafbe1;--red:#cf222e;--red-dim:#ffebe9;
+    --yellow:#9a6700;--blue:#0969da;--cyan:#1b7c83;--bg:#ffffff;
+  }
+  text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .panel{fill:var(--panel)}
+  .edge{stroke:var(--border);stroke-width:1}
+  .fg{fill:var(--fg)} .dim{fill:var(--dim)} .gr{fill:var(--green)}
+  .rd{fill:var(--red)} .yl{fill:var(--yellow)} .bl{fill:var(--blue)} .cy{fill:var(--cyan)}
+  .f10{font-size:10px} .f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+<rect x="0" y="0" width="760" height="150" rx="10" class="panel"/>
+<rect x="0.5" y="0.5" width="759" height="149" rx="10" fill="none" class="edge"/>
+<defs>
+<linearGradient id="wmGrad" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%" stop-color="#0969da"/>
+  <stop offset="45%" stop-color="#1b7c83"/>
+  <stop offset="100%" stop-color="#0969da"/>
+</linearGradient>
+<linearGradient id="wmSweep" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+  <stop offset="50%" stop-color="#24292f" stop-opacity="0.85"/>
+  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="wmClip"><text x="380" y="82" text-anchor="middle" font-size="66" letter-spacing="10" font-weight="700">BHAVYA</text></clipPath></defs>
+
+<g>
+  <text x="380" y="82" text-anchor="middle" font-size="66" font-weight="700" letter-spacing="10" style="fill:url(#wmGrad)">BHAVYA</text>
+  <g clip-path="url(#wmClip)">
+    <rect x="0" y="0" width="160" height="150" style="fill:url(#wmSweep)" class="sweep"/>
+  </g>
+  <text x="380" y="82" text-anchor="middle" font-size="66" font-weight="700" letter-spacing="10" class="glitch">BHAVYA</text>
+</g>
+<line x1="230" y1="104" x2="530" y2="104" class="edge"/>
+<text x="380" y="126" text-anchor="middle" class="dim f12" letter-spacing="3">ETHICAL HACKER · SECURITY RESEARCHER</text>
+<style>
+  .sweep{animation:sweep 6s ease-in-out infinite}
+  .glitch{fill:var(--cyan);opacity:0;mix-blend-mode:screen;animation:glitch 7s steps(1) infinite}
+  @keyframes sweep{0%{transform:translateX(0)}50%{transform:translateX(920px)}100%{transform:translateX(0)}}
+  @keyframes glitch{
+    0%,86%{opacity:0;transform:translate(0,0)}
+    87%{opacity:.5;transform:translate(-2px,1px)}
+    88%{opacity:0}
+    89%{opacity:.45;transform:translate(2px,-1px)}
+    90%,100%{opacity:0;transform:translate(0,0)}
+  }
+</style>
+</svg>

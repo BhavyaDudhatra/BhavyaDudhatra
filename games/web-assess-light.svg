@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 260" width="440" height="260" role="img" aria-label="Web application assessment showing a confirmed SQL injection finding">
+
+<style>
+  :root{
+    --panel:#f6f8fa;--border:#d0d7de;--fg:#24292f;--dim:#59636e;
+    --green:#1a7f37;--green-dim:#dafbe1;--red:#cf222e;--red-dim:#ffebe9;
+    --yellow:#9a6700;--blue:#0969da;--cyan:#1b7c83;--bg:#ffffff;
+  }
+  text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .panel{fill:var(--panel)}
+  .edge{stroke:var(--border);stroke-width:1}
+  .fg{fill:var(--fg)} .dim{fill:var(--dim)} .gr{fill:var(--green)}
+  .rd{fill:var(--red)} .yl{fill:var(--yellow)} .bl{fill:var(--blue)} .cy{fill:var(--cyan)}
+  .f10{font-size:10px} .f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+<rect x="0" y="0" width="440" height="260" rx="10" class="panel"/>
+<rect x="0.5" y="0.5" width="439" height="259" rx="10" fill="none" class="edge"/>
+<defs></defs>
+
+<text x="220" y="20" text-anchor="middle" class="dim f11">webapp --assess --scope authorised</text>
+<g style="animation:stepIn 16s linear infinite both;animation-delay:0.00s"><text x="14" y="46" class="dim f11">target</text><text x="86" y="46" class="dim f12">lab.local  (authorised)</text></g><g style="animation:stepIn 16s linear infinite both;animation-delay:0.90s"><text x="14" y="67" class="dim f11">surface</text><text x="86" y="67" class="dim f12">12 routes · 3 forms</text></g><g style="animation:stepIn 16s linear infinite both;animation-delay:1.80s"><text x="14" y="88" class="dim f11">probe</text><text x="86" y="88" class="yl f12">id=1' OR '1'='1</text></g><g style="animation:stepIn 16s linear infinite both;animation-delay:2.70s"><text x="14" y="109" class="dim f11">confirmed</text><text x="86" y="109" class="gr f12">SQLi · parameter id</text></g><g style="animation:stepIn 16s linear infinite both;animation-delay:3.60s"><text x="14" y="130" class="dim f11">severity</text><text x="86" y="130" class="rd f12">HIGH  cvss 9.8</text></g><g style="animation:stepIn 16s linear infinite both;animation-delay:3.6s"><rect x="14" y="140" width="200" height="8" rx="4" style="fill:var(--panel)" class="edge"/><rect x="14" y="140" width="0" height="8" rx="4" class="rd meter"/></g>
+<g style="animation:stepIn 16s linear infinite both;animation-delay:4.5s">
+<line x1="14" y1="196" x2="426" y2="196" class="edge"/>
+<text x="14" y="216" class="dim f11">remediation</text>
+<text x="86" y="216" class="fg f11">parameterised queries</text>
+<text x="14" y="234" class="dim f11">reported</text>
+<text x="86" y="234" class="gr f11">finding-001.md  ·  triage: open</text>
+</g>
+<style>
+  @keyframes stepIn{0%{opacity:0;transform:translateX(-6px)}3%{opacity:1;transform:translateX(0)}92%{opacity:1}100%{opacity:0}}
+  .meter{animation:meterFill 16s linear infinite;animation-delay:3.6s}
+  @keyframes meterFill{0%,22%{width:0}40%,92%{width:200px}100%{width:0}}
+</style>
+</svg>

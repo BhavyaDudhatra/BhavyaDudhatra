@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 260" width="440" height="260" role="img" aria-label="Hex dump of process memory with an artifact carved out">
+
+<style>
+  :root{
+    --panel:#f6f8fa;--border:#d0d7de;--fg:#24292f;--dim:#59636e;
+    --green:#1a7f37;--green-dim:#dafbe1;--red:#cf222e;--red-dim:#ffebe9;
+    --yellow:#9a6700;--blue:#0969da;--cyan:#1b7c83;--bg:#ffffff;
+  }
+  text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .panel{fill:var(--panel)}
+  .edge{stroke:var(--border);stroke-width:1}
+  .fg{fill:var(--fg)} .dim{fill:var(--dim)} .gr{fill:var(--green)}
+  .rd{fill:var(--red)} .yl{fill:var(--yellow)} .bl{fill:var(--blue)} .cy{fill:var(--cyan)}
+  .f10{font-size:10px} .f11{font-size:11px} .f12{font-size:12px} .f13{font-size:13px}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important}}
+</style>
+<rect x="0" y="0" width="440" height="260" rx="10" class="panel"/>
+<rect x="0.5" y="0.5" width="439" height="259" rx="10" fill="none" class="edge"/>
+<defs></defs>
+
+<text x="220" y="20" text-anchor="middle" class="dim f11">vol.py -f memory.raw --dump --pid 4821</text>
+<g style="animation:dumpIn 18s linear infinite both;animation-delay:0.00s"><text x="14" y="44" class="dim f11">7FFB0000</text><text x="74" y="44" class="fg f11" xml:space="preserve">50 3B 7F 48 74 61 F4 4C 2E D3 88 56</text><text x="321.6" y="44" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:0.35s"><text x="14" y="58" class="dim f11">7FFB000C</text><text x="74" y="58" class="fg f11" xml:space="preserve">E9 25 68 F5 6A 42 16 77 23 46 14 C3</text><text x="321.6" y="58" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:0.70s"><text x="14" y="72" class="dim f11">7FFB0018</text><text x="74" y="72" class="fg f11" xml:space="preserve">BC 88 DF AA 24 35 43 36 2D 3B 7E A5</text><text x="321.6" y="72" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:1.05s"><text x="14" y="86" class="dim f11">7FFB0024</text><text x="74" y="86" class="fg f11" xml:space="preserve">CE 70 6D 69 6D 69 6B 61 74 7A 2E 65</text><text x="321.6" y="86" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:1.40s"><text x="14" y="100" class="dim f11">7FFB0030</text><text x="74" y="100" class="fg f11" xml:space="preserve">EC 54 BD F5 68 D9 8F F0 E2 9D 06 94</text><text x="321.6" y="100" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:1.75s"><text x="14" y="114" class="dim f11">7FFB003C</text><text x="74" y="114" class="fg f11" xml:space="preserve">10 62 53 BF 92 46 13 7C E5 EC 2F 21</text><text x="321.6" y="114" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:2.10s"><text x="14" y="128" class="dim f11">7FFB0048</text><text x="74" y="128" class="fg f11" xml:space="preserve">63 48 3F 91 D2 65 1E 12 73 5B 45 44</text><text x="321.6" y="128" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:2.45s"><text x="14" y="142" class="dim f11">7FFB0054</text><text x="74" y="142" class="fg f11" xml:space="preserve">E8 9B EE CD 0A 44 1C 36 98 9F 07 E2</text><text x="321.6" y="142" class="dim f11">........|...</text></g><g style="animation:dumpIn 18s linear infinite both;animation-delay:2.80s"><text x="14" y="156" class="dim f11">7FFB0060</text><text x="74" y="156" class="fg f11" xml:space="preserve">C2 92 BB 35 E0 22 6D 2F 6F 66 9E 00</text><text x="321.6" y="156" class="dim f11">........|...</text></g>
+<line x1="14" y1="180" x2="426" y2="180" class="edge"/>
+<g style="animation:carve 18s linear infinite both">
+<text x="14" y="199" class="dim f11">signature</text>
+<text x="82" y="199" class="rd f11">MZ header + PE stub at 0x7FFB0024</text>
+<text x="14" y="217" class="dim f11">carved</text>
+<text x="82" y="217" class="gr f11">mimikatz.exe  (11 bytes)</text>
+<text x="14" y="235" class="dim f11">sha256</text>
+<text x="82" y="235" class="yl f11">9f2a...c41b  verified</text>
+</g>
+<rect x="71" y="77" width="274.2" height="12" rx="2" style="fill:var(--red-dim)" class="hl"/>
+<style>
+  @keyframes dumpIn{
+    0%{opacity:0}2%{opacity:1}92%{opacity:1}100%{opacity:0}
+  }
+  @keyframes carve{
+    0%,8%{opacity:0}14%,92%{opacity:1}100%{opacity:0}
+  }
+  .hl{animation:hlpulse 18s linear infinite}
+  @keyframes hlpulse{0%,12%{opacity:0}16%,92%{opacity:1}100%{opacity:0}}
+</style>
+</svg>
